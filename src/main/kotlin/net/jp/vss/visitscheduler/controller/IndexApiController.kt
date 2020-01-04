@@ -1,6 +1,7 @@
 package net.jp.vss.visitscheduler.controller
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import javax.servlet.http.HttpSession
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository
@@ -8,7 +9,6 @@ import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import javax.servlet.http.HttpSession
 
 /**
  * 共通の ApiController.

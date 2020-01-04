@@ -4,9 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import java.io.IOException
 import javax.validation.Constraint
 import javax.validation.ConstraintValidator
+import javax.validation.ConstraintValidatorContext
 import javax.validation.Payload
 import javax.validation.ReportAsSingleViolation
-import javax.validation.ConstraintValidatorContext
 import javax.validation.constraints.Pattern
 import kotlin.annotation.MustBeDocumented
 import kotlin.reflect.KClass

@@ -1,5 +1,7 @@
 package net.jp.vss.visitscheduler
 
+import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.HttpServletResponse
 import net.jp.vss.visitscheduler.configurations.VssConfigurationProperties
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -15,8 +17,6 @@ import org.springframework.security.web.csrf.CsrfTokenRepository
 import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.CorsConfigurationSource
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
-import javax.servlet.http.HttpServletRequest
-import javax.servlet.http.HttpServletResponse
 
 /**
  * Application Main.
