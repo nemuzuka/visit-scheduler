@@ -2,7 +2,6 @@ package net.jp.vss.visitscheduler.controller.users
 
 import net.jp.vss.visitscheduler.usecase.users.GetUserUseCase
 import net.jp.vss.visitscheduler.usecase.users.UserUseCaseResult
-import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken
@@ -29,7 +28,7 @@ class MeApiController(
      * 該当データが存在しない場合、プロパティが全て空文字のユーザ情報をレスポンスします
      * @return レスポンス
      */
-    @GetMapping(consumes = [MediaType.APPLICATION_JSON_VALUE])
+    @GetMapping
     fun me(): ResponseEntity<UserUseCaseResult> {
         val authentication = SecurityContextHolder.getContext().authentication as OAuth2AuthenticationToken
         val principal = authentication.principal
