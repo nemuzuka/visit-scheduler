@@ -1,0 +1,55 @@
+@charset "UTF-8";
+
+html, body {
+    height:100%;
+}
+body {
+    background: #FFF url(./assets/texture.png);
+}
+
+.container {
+    height: 100%;
+}
+
+.hide {
+    display: none !important;
+}
+
+.require-input {
+    color: #ff3860;
+}
+
+.loader-contents {
+    position: fixed;
+    left: 20px;
+    top: 10%;
+    z-index: 1000;
+    background-color: lightpink;
+    padding: 5px;
+    border-radius: 6px;
+    display: none;
+}
+
+.ball{
+    background-color:rgba(0,0,0,0);
+    border:1px solid rgba(255,255,255,0.9);
+    opacity:.9;
+    border-top:1px solid rgba(0,0,0,0);
+    border-left:1px solid rgba(0,0,0,0);
+    border-radius:20px;width:20px;height:20px;margin:0 auto;
+    -moz-animation:spin .8s infinite linear;
+    -webkit-animation:spin .8s infinite linear}@-moz-keyframes spin{0%{-moz-transform:rotate(0deg)}100%{-moz-transform:rotate(360deg)}}@-moz-keyframes spinoff{0%{-moz-transform:rotate(0deg)}100%{-moz-transform:rotate(-360deg)}}@-webkit-keyframes spin{0%{-webkit-transform:rotate(0deg)}100%{-webkit-transform:rotate(360deg)}}@-webkit-keyframes spinoff{0%{-webkit-transform:rotate(0deg)}100%{-webkit-transform:rotate(-360deg)}
+}
+
+@keyframes blink {
+    75% { opacity: 0.0; }
+}
+@-webkit-keyframes blink {
+    75% { opacity: 0.0; }
+}
+
+.loader-message {
+    animation: blink 1s step-end infinite;
+    -webkit-animation: blink 1s step-end infinite;
+    width: 7em;
+}
