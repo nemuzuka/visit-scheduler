@@ -260,4 +260,51 @@ class SchoolDaoTest {
         // verify
         assertThat(actual).isInstanceOf(OptimisticLockingFailureException::class.java)
     }
+
+    @Test
+    @FlywayTest
+    @DisplayName("delete のテスト")
+    fun testDelete() {
+        // setup
+        val baseSchool = SchoolEntityFixtures.create()
+        val school = sut.create(baseSchool)
+
+        // execution
+        val actual = sut.delete(school.entity)
+
+        // verify
+        assertThat(actual.count).isEqualTo(1L)
+        assertThat(sut.findBySchoolCodeAndUserCode(baseSchool.schoolCode, baseSchool.userCode, SelectOptions.get()))
+            .isNull()
+    }
+
+    @Test
+    @FlywayTest
+    @DisplayName("delete のテスト version 不正")
+    fun testDelete_InvalidVersion() {
+        // setup
+        val baseSchool = SchoolEntityFixtures.create()
+        sut.create(baseSchool)
+        val school = baseSchool.copy(versionNo = baseSchool.versionNo + 1)
+
+        // execution
+        val actual = catchThrowable { sut.delete(school) }
+
+        // verify
+        assertThat(actual).isInstanceOf(OptimisticLockingFailureException::class.java)
+    }
+
+    @Test
+    @FlywayTest
+    @DisplayName("delete のテスト 更新対象が存在しない")
+    fun testDelete_NotFoundUpdateTarget() {
+        // setup
+        val school = SchoolEntityFixtures.create()
+
+        // execution
+        val actual = catchThrowable { sut.update(school) }
+
+        // verify
+        assertThat(actual).isInstanceOf(OptimisticLockingFailureException::class.java)
+    }
 }

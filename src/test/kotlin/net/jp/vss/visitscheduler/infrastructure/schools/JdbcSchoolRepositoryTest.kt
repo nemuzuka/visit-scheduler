@@ -271,4 +271,36 @@ class JdbcSchoolRepositoryTest {
             assertThat(e.message).isEqualTo("School(${school.schoolCode.value}) は存在しません")
         }
     }
+
+    @Test
+    @FlywayTest
+    fun testDeleteSchool() {
+        // setup
+        val school = SchoolFixtures.create()
+        sut.createSchool(school)
+
+        // execution
+        sut.deleteSchool(school)
+
+        // verify
+        val exception = catchThrowable { sut.deleteSchool(school) }
+        assertThat(exception).isInstanceOfSatisfying(NotFoundException::class.java) { e ->
+            assertThat(e.message).isEqualTo("School(${school.schoolCode.value}) は存在しません")
+        }
+    }
+
+    @Test
+    @FlywayTest
+    fun testDeleteSchool_NotFoundUpdateTarget() {
+        // setup
+        val school = SchoolFixtures.create()
+
+        // execution
+        val actual = catchThrowable { sut.deleteSchool(school) }
+
+        // verify
+        assertThat(actual).isInstanceOfSatisfying(NotFoundException::class.java) { e ->
+            assertThat(e.message).isEqualTo("School(${school.schoolCode.value}) は存在しません")
+        }
+    }
 }

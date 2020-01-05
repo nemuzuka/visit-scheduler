@@ -1,6 +1,7 @@
 package net.jp.vss.visitscheduler.infrastructure.schools
 
 import org.seasar.doma.Dao
+import org.seasar.doma.Delete
 import org.seasar.doma.Insert
 import org.seasar.doma.Select
 import org.seasar.doma.Update
@@ -57,6 +58,16 @@ interface SchoolDao {
     @Update(include = ["name", "memo",
         "attributes", "lastUpdateUserCode", "lastUpdateAt", "versionNo"])
     fun update(entity: SchoolEntity): Result<SchoolEntity>
+
+    /**
+     * 削除.
+     *
+     * @param entity 対象 Entity
+     * @return 結果
+     * @throws OptimisticLockingFailureException 更新対象レコードが存在しない
+     */
+    @Delete
+    fun delete(entity: SchoolEntity): Result<SchoolEntity>
 
     /**
      * 全件取得.

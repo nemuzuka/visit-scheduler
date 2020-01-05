@@ -53,6 +53,15 @@ class JdbcSchoolRepository(private val schoolDao: SchoolDao) : SchoolRepository 
         return getSchool(school.schoolCode, school.userCode)
     }
 
+    override fun deleteSchool(school: School) {
+        try {
+            schoolDao.delete(toSchoolEntity(school))
+        } catch (e: OptimisticLockingFailureException) {
+            val message = "School(${school.schoolCode.value}) は存在しません"
+            throw NotFoundException(message)
+        }
+    }
+
     override fun allSchools(userCode: User.UserCode): List<School> =
         schoolDao.findAll(userCode.value).map { v -> v.toSchool() }
 

@@ -48,6 +48,15 @@ interface SchoolRepository {
     fun updateSchool(school: School): School
 
     /**
+     * 削除.
+     *
+     * School を削除します
+     * @param school 対象 School
+     * @throws NotFoundException 該当レコードが存在しない
+     */
+    fun deleteSchool(school: School)
+
+    /**
      * 全件取得.
      *
      * @param userCode ユーザコード
