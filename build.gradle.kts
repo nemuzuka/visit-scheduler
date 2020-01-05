@@ -111,6 +111,14 @@ tasks.register<JavaExec>("ktlintFormat") {
     args = listOf("-F", "src/**/*.kt")
 }
 
+// リソースファイルの出力先設定
+val compileKotlin: KotlinCompile by tasks
+kapt {
+    arguments {
+        arg("doma.resources.dir", compileKotlin.destinationDir)
+    }
+}
+
 // doma 関連
 tasks.register<Sync>("copyDomaResources") {
     from("src/main/resources")
@@ -120,14 +128,6 @@ tasks.register<Sync>("copyDomaResources") {
     include("META-INF/**/*.script")
 }
 
-
-// リソースファイルの出力先設定
-val compileKotlin: KotlinCompile by tasks
-kapt {
-    arguments {
-        arg("doma.resources.dir", compileKotlin.destinationDir)
-    }
-}
 
 tasks.withType<KotlinCompile> {
     dependsOn(tasks.getByName("copyDomaResources")) // dooma のリソースを移動してから実施

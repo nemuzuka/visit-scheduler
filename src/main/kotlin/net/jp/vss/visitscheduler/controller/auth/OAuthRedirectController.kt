@@ -33,7 +33,7 @@ class OAuthRedirectController(
 
         return if (user == null) {
             // ユーザ登録画面へリダイレクト
-            "redirect:${vssConfigurationProperties.redirectBaseUrl}/#/user-settings"
+            "redirect:${vssConfigurationProperties.redirectBaseUrl}/user-settings"
         } else {
             // TOP画面へリダイレクト
             "redirect:${vssConfigurationProperties.redirectBaseUrl}/"
