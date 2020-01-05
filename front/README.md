@@ -40,10 +40,11 @@ $ npm run build
 を実行すると、`../src/main/resources/static/` にファイルを出力します
 `./gradlew build` の前に実行することで、生成 jar に Vue.js を組み込む事ができます
 
-### axios を 0.18 系にしている理由
-0.19 にしない理由は、OPTIONS メソッドの後の GET メソッドに Content-Type を付与しない為です。
+### axios を 使用する上での注意点
+OPTIONS メソッドの後の GET メソッドに Content-Type を付与しないようです。
 (どうも、GET メソッドで Content-Type を指定しないことを axios は推奨している模様)
 
+その為、GET の API で consumes を付与しないようにします。
 
 ## ローカルで開発する
 
