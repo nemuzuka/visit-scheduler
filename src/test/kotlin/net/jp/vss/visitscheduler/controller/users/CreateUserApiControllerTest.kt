@@ -96,7 +96,7 @@ class CreateUserApiControllerTest {
 
     @Test
     @WithMockUser
-    fun testCreateTask_ConflictTaskCode_409() {
+    fun testCreateUser_ConflictUserCode_409() {
         // setup
         val authorizedClientRegistrationId = "google"
         val principalName = "abcd-000A-0001"

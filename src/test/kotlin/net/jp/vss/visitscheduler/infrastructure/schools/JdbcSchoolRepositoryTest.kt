@@ -57,7 +57,7 @@ class JdbcSchoolRepositoryTest {
 
     @Test
     @FlywayTest
-    fun testCreateSchool_AlreadyExistTaskCode_DE() {
+    fun testCreateSchool_AlreadyExistSchoolCode_DE() {
         // setup
         val baseSchool = SchoolFixtures.create()
         sut.createSchool(baseSchool)
@@ -124,7 +124,7 @@ class JdbcSchoolRepositoryTest {
 
     @Test
     @FlywayTest(locationsForMigrate = ["/db/fixtures_school"])
-    fun testGetSchool_NotFoundTask_NFE() {
+    fun testGetSchool_NotFoundSchool_NFE() {
         // setup
         val schoolCode = School.SchoolCode("school_code_002")
         val userCode = User.UserCode("user_002")
@@ -154,7 +154,7 @@ class JdbcSchoolRepositoryTest {
 
     @Test
     @FlywayTest(locationsForMigrate = ["/db/fixtures_school"])
-    fun testLockSchool_NotFoundTask_NFE() {
+    fun testLockSchool_NotFoundSchool_NFE() {
         // setup
         val schoolCode = School.SchoolCode("school_code_002")
         val userCode = User.UserCode("user_002")
