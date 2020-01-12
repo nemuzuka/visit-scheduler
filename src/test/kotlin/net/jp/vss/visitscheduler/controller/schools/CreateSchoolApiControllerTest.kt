@@ -1,18 +1,20 @@
-package net.jp.vss.visitscheduler.controller.users
+package net.jp.vss.visitscheduler.controller.schools
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import net.jp.vss.visitscheduler.domain.exceptions.DuplicateException
-import net.jp.vss.visitscheduler.domain.users.UserFixtures
-import net.jp.vss.visitscheduler.usecase.users.CreateUserUseCase
-import net.jp.vss.visitscheduler.usecase.users.UserUseCaseResult
+import net.jp.vss.visitscheduler.usecase.schools.CreateSchoolUseCase
+import net.jp.vss.visitscheduler.usecase.schools.SchoolUseCaseResultFixtures
+import net.jp.vss.visitscheduler.usecase.users.GetUserUseCase
+import net.jp.vss.visitscheduler.usecase.users.UserUseCaseResultFixtures
 import org.hamcrest.CoreMatchers.`is`
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mock
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
@@ -32,18 +34,21 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPat
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 /**
- * CreateUserApiController のテスト.
+ * CreateSchoolApiController のテスト.
  */
 @ExtendWith(SpringExtension::class)
 @SpringBootTest
 @AutoConfigureMockMvc
-class CreateUserApiControllerTest {
+class CreateSchoolApiControllerTest {
 
     @Autowired
     private lateinit var mockMvc: MockMvc
 
     @MockBean
-    private lateinit var createUserUseCase: CreateUserUseCase
+    private lateinit var getUserUseCase: GetUserUseCase
+
+    @MockBean
+    private lateinit var createSchoolUseCase: CreateSchoolUseCase
 
     @Mock
     private lateinit var oAuth2AuthenticationToken: OAuth2AuthenticationToken
@@ -66,7 +71,7 @@ class CreateUserApiControllerTest {
 
     @Test
     @WithMockUser
-    fun testCreateUser() {
+    fun testCreateSchool() {
         // setup
         val authorizedClientRegistrationId = "google"
         val principalName = "abcd-000A-0001"
@@ -75,28 +80,32 @@ class CreateUserApiControllerTest {
         whenever(oAuth2AuthenticationToken.principal).thenReturn(principal)
         whenever(oAuth2AuthenticationToken.isAuthenticated).thenReturn(true)
 
-        val createdUser = UserFixtures.create()
-        whenever(createUserUseCase.createUser(any())).thenReturn(UserUseCaseResult.of(createdUser))
+        val user = UserUseCaseResultFixtures.create()
+        whenever(getUserUseCase.getUser(anyString(), anyString())).thenReturn(user)
 
-        val parameter = CreateUserApiParameterFixtures.create()
+        val createdSchool = SchoolUseCaseResultFixtures.create()
+        whenever(createSchoolUseCase.createSchool(any())).thenReturn(createdSchool)
+
+        val parameter = CreateSchoolApiParameterFixtures.create()
         val mapper = ObjectMapper()
         val content = mapper.writeValueAsString(parameter)
 
         // execution
-        mockMvc.perform(post("/api/users")
+        mockMvc.perform(post("/api/schools")
             .contentType(MediaType.APPLICATION_JSON)
             .with(SecurityMockMvcRequestPostProcessors.csrf())
             .content(content))
             // verify
             .andExpect(status().isOk)
-            .andExpect(jsonPath("user_code").value(`is`(createdUser.userCode.value)))
+            .andExpect(jsonPath("school_code").value(`is`(createdSchool.schoolCode)))
 
-        verify(createUserUseCase).createUser(parameter.toParameter(authorizedClientRegistrationId, principalName))
+        verify(getUserUseCase).getUser(authorizedClientRegistrationId, principalName)
+        verify(createSchoolUseCase).createSchool(parameter.toParameter(user.userCode))
     }
 
     @Test
     @WithMockUser
-    fun testCreateUser_ConflictUserCode_409() {
+    fun testCreateSchool_ConflictSchoolCode_409() {
         // setup
         val authorizedClientRegistrationId = "google"
         val principalName = "abcd-000A-0001"
@@ -105,15 +114,18 @@ class CreateUserApiControllerTest {
         whenever(oAuth2AuthenticationToken.principal).thenReturn(principal)
         whenever(oAuth2AuthenticationToken.isAuthenticated).thenReturn(true)
 
-        val exception = DuplicateException("dummy")
-        whenever(createUserUseCase.createUser(any())).thenThrow(exception)
+        val user = UserUseCaseResultFixtures.create()
+        whenever(getUserUseCase.getUser(anyString(), anyString())).thenReturn(user)
 
-        val parameter = CreateUserApiParameterFixtures.create()
+        val exception = DuplicateException("dummy")
+        whenever(createSchoolUseCase.createSchool(any())).thenThrow(exception)
+
+        val parameter = CreateSchoolApiParameterFixtures.create()
         val mapper = ObjectMapper()
         val content = mapper.writeValueAsString(parameter)
 
         // execution
-        mockMvc.perform(post("/api/users")
+        mockMvc.perform(post("/api/schools")
             .contentType(MediaType.APPLICATION_JSON)
             .with(SecurityMockMvcRequestPostProcessors.csrf())
             .content(content))
@@ -128,12 +140,12 @@ class CreateUserApiControllerTest {
     @WithMockUser
     fun testCreateUser_NotCsrfToken_403() {
         // setup
-        val parameter = CreateUserApiParameterFixtures.create()
+        val parameter = CreateSchoolApiParameterFixtures.create()
         val mapper = ObjectMapper()
         val content = mapper.writeValueAsString(parameter)
 
         // execution
-        mockMvc.perform(post("/api/users")
+        mockMvc.perform(post("/api/schools")
             .contentType(MediaType.APPLICATION_JSON)
             .content(content))
             // verify

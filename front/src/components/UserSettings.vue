@@ -16,28 +16,29 @@
           </div>
         </article>
 
-        <ValidationObserver tag="form" v-slot="{ handleSubmit }" @submit.prevent>
-          <validation-provider rules="required|max:256" immediate v-slot="{ errors }" name="氏名">
-            <div class="field">
-              <label class="label">氏名<span class="require-input">(*)</span></label>
-              <div class="control">
-                <input class="input" type="text" v-model="user.user_name" placeholder="e.g. 山田 太郎" name="userName">
+        <ValidationObserver v-slot="{handleSubmit, valid}">
+          <form @submit.prevent>
+            <validation-provider rules="required|max:256" v-slot="{ errors }" name="氏名">
+              <div class="field">
+                <label class="label">氏名<span class="require-input">(*)</span></label>
+                <div class="control">
+                  <input class="input" type="text" v-model="user.user_name" placeholder="e.g. 山田 太郎" name="userName">
+                </div>
+                <p class="help is-danger">{{ errors[0] }}</p>
               </div>
-              <p class="help is-danger">{{ errors[0] }}</p>
-            </div>
-          </validation-provider>
+            </validation-provider>
 
-          <div class="field">
-            <p class="control has-text-right">
-              <button class="button is-info" @click="handleSubmit(saveUser)">
+            <div class="field">
+              <p class="control has-text-right">
+                <button class="button is-info" :disabled="!valid" @click="handleSubmit(saveUser)">
                 <span class="icon is-small">
                   <font-awesome-icon icon="save" />
                 </span>
-                <span>{{actionTypeName}}する</span>
-              </button>
-            </p>
-          </div>
-
+                  <span>{{actionTypeName}}する</span>
+                </button>
+              </p>
+            </div>
+          </form>
         </ValidationObserver>
 
       </div>

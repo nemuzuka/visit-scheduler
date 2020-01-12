@@ -26,7 +26,7 @@ class GetUserUseCaseImplTest {
     private lateinit var sut: GetUserUseCaseImpl
 
     @Test
-    fun testGetTask() {
+    fun testGetSchool() {
         // setup
         val user = UserFixtures.create()
         whenever(userRepo.getUserOrNull(any(), any())).thenReturn(user)
@@ -46,7 +46,7 @@ class GetUserUseCaseImplTest {
     }
 
     @Test
-    fun testGetTask_NotExsits() {
+    fun testGetSchool_NotExsits() {
         // setup
         whenever(userRepo.getUserOrNull(any(), any())).thenReturn(null)
         val authorizedClientRegistrationId = "google"

@@ -1,7 +1,9 @@
-package net.jp.vss.visitscheduler.controller.users
+package net.jp.vss.visitscheduler.controller.schools
 
+import net.jp.vss.visitscheduler.controller.ListResponse
+import net.jp.vss.visitscheduler.usecase.schools.ListSchoolUseCase
+import net.jp.vss.visitscheduler.usecase.schools.SchoolUseCaseResult
 import net.jp.vss.visitscheduler.usecase.users.GetUserUseCase
-import net.jp.vss.visitscheduler.usecase.users.UserUseCaseResult
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken
@@ -11,28 +13,30 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 /**
- * Me の APIController.
+ * ListSchool の APIController.
  *
- * @property getUserUseCase GetUser の UseCase
+ * @property getUserUseCase GetUserUseCase の UseCase
+ * @property listSchoolUseCase ListSchool の UseCase
  */
 @RestController
-@RequestMapping("/api/me")
+@RequestMapping("/api/schools")
 @Validated
-class MeApiController(
-    private val getUserUseCase: GetUserUseCase
+class ListSchoolApiController(
+    private val getUserUseCase: GetUserUseCase,
+    private val listSchoolUseCase: ListSchoolUseCase
 ) {
 
     /**
-     * 自分の情報取得.
+     * ListSchool.
      *
-     * 該当データが存在しない場合、プロパティが全て空文字のユーザ情報をレスポンスします
      * @return レスポンス
      */
     @GetMapping
-    fun me(): ResponseEntity<UserUseCaseResult> {
+    fun listSchool(): ResponseEntity<ListResponse<SchoolUseCaseResult>> {
         val authentication = SecurityContextHolder.getContext().authentication as OAuth2AuthenticationToken
         val principal = authentication.principal
         val user = getUserUseCase.getUser(authentication.authorizedClientRegistrationId, principal.name)
-        return ResponseEntity.ok(user ?: UserUseCaseResult(userCode = "", userName = ""))
+
+        return ResponseEntity.ok(ListResponse(listSchoolUseCase.allSchools(user!!.userCode)))
     }
 }

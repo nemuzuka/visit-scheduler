@@ -41,5 +41,11 @@ data class ResourceAttributesResult(
                 lastUpdateUserCode = resourceAttributes.lastUpdateUserCode,
                 lastUpdateAt = resourceAttributes.lastUpdateAt,
                 version = resourceAttributes.version)
+
+        fun empty() = ResourceAttributesResult(createUserCode = "",
+            createAt = 0L,
+            lastUpdateUserCode = "",
+            lastUpdateAt = 0L,
+            version = 0L)
     }
 }

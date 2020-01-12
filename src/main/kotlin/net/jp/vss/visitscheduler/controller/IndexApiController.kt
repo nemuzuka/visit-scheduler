@@ -2,7 +2,6 @@ package net.jp.vss.visitscheduler.controller
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import javax.servlet.http.HttpSession
-import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository
 import org.springframework.validation.annotation.Validated
@@ -28,7 +27,7 @@ class IndexApiController(
      *
      * @return レスポンス
      */
-    @GetMapping(value = ["/health"], consumes = [MediaType.APPLICATION_JSON_VALUE])
+    @GetMapping("/health")
     fun healthCheck(): ResponseEntity<String> {
         return ResponseEntity.ok("It's work!")
     }
@@ -38,7 +37,7 @@ class IndexApiController(
      *
      * @return レスポンス
      */
-    @GetMapping(value = ["/open-id-connects"], consumes = [MediaType.APPLICATION_JSON_VALUE])
+    @GetMapping("/open-id-connects")
     fun openIdConnectList(): ResponseEntity<ListResponse<OAuth2Registration>> {
         return ResponseEntity.ok(ListResponse(clientRegistrationRepository.map {
             val registrationId = it.registrationId
