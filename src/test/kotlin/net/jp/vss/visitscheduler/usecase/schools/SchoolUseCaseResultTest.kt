@@ -1,6 +1,7 @@
 package net.jp.vss.visitscheduler.usecase.schools
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import net.jp.vss.visitscheduler.usecase.ResourceAttributesResult
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -69,6 +70,19 @@ class SchoolUseCaseResultTest {
                 |"attributes":null
             |}
         """.trimMargin().replace("\n", "")
+        assertThat(actual).isEqualTo(expected)
+    }
+
+    @Test
+    fun testNewSchoolUseCaseResult() {
+        // execution
+        val actual = SchoolUseCaseResult.newSchoolUseCaseResult()
+
+        // verify
+        val expected = SchoolUseCaseResult(schoolCode = "", name = "",
+            memo = null,
+            attributes = null,
+            resourceAttributesResult = ResourceAttributesResult.empty())
         assertThat(actual).isEqualTo(expected)
     }
 }

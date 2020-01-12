@@ -51,4 +51,18 @@ class ResourceAttributesResultTest {
             version = resourceAttributes.version)
         assertThat(actual).isEqualTo(expected)
     }
+
+    @Test
+    fun testEmpty() {
+        // execution
+        val actual = ResourceAttributesResult.empty()
+
+        // verify
+        val expected = ResourceAttributesResult(createUserCode = "",
+            createAt = 0L,
+            lastUpdateUserCode = "",
+            lastUpdateAt = 0L,
+            version = 0L)
+        assertThat(actual).isEqualTo(expected)
+    }
 }

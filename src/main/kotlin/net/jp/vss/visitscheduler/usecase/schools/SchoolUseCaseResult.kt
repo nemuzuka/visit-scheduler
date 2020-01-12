@@ -50,5 +50,12 @@ data class SchoolUseCaseResult(
                 attributes = attributes?.value,
                 resourceAttributesResult = ResourceAttributesResult.of(school.resourceAttributes))
         }
+
+        fun newSchoolUseCaseResult(): SchoolUseCaseResult {
+            return SchoolUseCaseResult(schoolCode = "", name = "",
+                memo = null,
+                attributes = null,
+                resourceAttributesResult = ResourceAttributesResult.empty())
+        }
     }
 }
