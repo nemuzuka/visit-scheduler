@@ -5,6 +5,7 @@
     </div>
 
     <p class="edit-user"><a @click="moveUserSettings"><font-awesome-icon icon="user-cog" /></a></p>
+    <p class="school"><a @click="moveSchool"><font-awesome-icon icon="school" /></a></p>
 
   </div>
 </template>
@@ -39,10 +40,6 @@ export default {
     self.refresh()
   },
   methods: {
-    moveCreateTask() {
-      const self = this
-      self.$router.push('/edit-task/_new')
-    },
     async refresh() {
       const self = this
       self.taskMessage = ""
@@ -125,19 +122,17 @@ export default {
     moveUserSettings() {
       const self = this
       self.$router.push('/user-settings')
+    },
+    moveSchool() {
+      const self = this
+      self.$router.push('/school')
     }
   }
 }
 </script>
 
 <style scoped>
-  p.create-task {
-    position: fixed;
-    right: 15px;
-    top: 15%;
-    z-index: 10;
-  }
-  p.filter-task {
+  p.school {
     position: fixed;
     right: 15px;
     top: 25%;
@@ -150,20 +145,17 @@ export default {
     z-index: 10;
   }
 
-  p.create-task a:hover,
-  p.filter-task a:hover,
+  p.school a:hover,
   p.edit-user a:hover{
     background: #999;
     text-decoration: none;
   }
-  p.create-task a,
-  p.filter-task a,
+  p.school a,
   p.edit-user a {
     background: #666;
     color: #fff;
   }
-  p.create-task a,
-  p.filter-task a,
+  p.school a,
   p.edit-user a {
     opacity: .75;
     text-decoration: none;
@@ -175,8 +167,7 @@ export default {
     border-radius: 5px;
     font-size: 200%;
   }
-  p.create-task a i,
-  p.filter-task a i,
+  p.school a i,
   p.edit-user a i {
     margin-top: 8px;
   }

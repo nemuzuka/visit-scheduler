@@ -112,36 +112,3 @@
     }
   }
 </script>
-
-<style scoped>
-  p.back {
-    position: fixed;
-    left: 15px;
-    top: 40%;
-    z-index: 10;
-  }
-  p.back a:hover {
-    background: #999;
-  }
-  p.back a:hover {
-    text-decoration: none;
-  }
-  p.back a {
-    background: #666;
-    color: #fff;
-  }
-  p.back a {
-    opacity: .75;
-    text-decoration: none;
-    width: 55.5px;
-    height: 55.5px;
-    padding: 5px 0;
-    text-align: center;
-    display: block;
-    border-radius: 5px;
-    font-size: 200%;
-  }
-  p.back a i {
-    margin-top: 8px;
-  }
-</style>

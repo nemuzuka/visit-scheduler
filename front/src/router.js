@@ -5,6 +5,8 @@ import Login from './components/Login.vue';
 import UserSettings from './components/UserSettings.vue';
 import Error from './components/Error.vue';
 import TaskEdit  from './components/task/Edit.vue';
+import SchoolTop  from './components/school/Top.vue';
+import SchoolEdit  from './components/school/Edit.vue';
 
 Vue.use(VueRouter);
 
@@ -14,6 +16,8 @@ const routes = [
   { path: '/user-settings', component: UserSettings },
   { path: '/error', component: Error },
   { path: '/edit-task/:task_code', component: TaskEdit },
+  { path: '/school', component: SchoolTop },
+  { path: '/edit-school/:school_code', component: SchoolEdit },
 ];
 
 const router = new VueRouter({
