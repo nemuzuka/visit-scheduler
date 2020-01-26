@@ -1,4 +1,5 @@
 import Moment from 'moment'
+import Markd from 'marked'
 
 export default class Utils {
   /**
@@ -29,6 +30,13 @@ export default class Utils {
     }
     const moment = Moment(epochMillis)
     return moment.format("YYYY-MM-DD")
+  }
+
+  static toMarkdown(src) {
+    if(src == null) {
+      return ""
+    }
+    return Markd(src)
   }
 
   /**

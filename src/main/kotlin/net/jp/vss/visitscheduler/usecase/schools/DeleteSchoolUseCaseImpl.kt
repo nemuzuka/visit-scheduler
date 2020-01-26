@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional
  * @property schoolRepo School のリポジトリ
  */
 @Service
-@Transactional(readOnly = true)
+@Transactional
 class DeleteSchoolUseCaseImpl(
     private val schoolRepo: SchoolRepository
 ) : DeleteSchoolUseCase {
