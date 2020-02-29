@@ -78,4 +78,23 @@ interface SchoolDao {
     @Sql("SELECT * FROM schools WHERE user_code = /*userCode*/'def' ORDER BY create_at")
     @Select
     fun findAll(userCode: String): List<SchoolEntity>
+
+    /**
+     * school_code リストと user_code による取得.
+     *
+     * @param schoolCodes 学校コードリスト
+     * @param userCode ユーザコード
+     * @return 該当データ(存在しない場合、空リスト)
+     */
+    @Sql("""
+        SELECT *
+        FROM
+            schools
+        WHERE
+            school_code in /*schoolCodes*/('abc') AND
+            user_code = /*userCode*/'def'
+        ORDER BY create_at
+    """)
+    @Select
+    fun findBySchoolCodesAndUserCode(schoolCodes: List<String>, userCode: String): List<SchoolEntity>
 }

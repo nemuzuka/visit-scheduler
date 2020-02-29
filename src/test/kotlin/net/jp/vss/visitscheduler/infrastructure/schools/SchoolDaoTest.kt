@@ -307,4 +307,36 @@ class SchoolDaoTest {
         // verify
         assertThat(actual).isInstanceOf(OptimisticLockingFailureException::class.java)
     }
+
+    @Test
+    @FlywayTest(locationsForMigrate = ["/db/fixtures_school"])
+    @DisplayName("findBySchoolCodeAndUserCode のテスト(存在する)")
+    fun testFindBySchoolCodeAndUserCode_Exists() {
+        // setup
+        val schoolCodes = listOf("school_code_002", "school_code_003")
+        val userCode = "user_001"
+
+        // execution
+        val actual = sut.findBySchoolCodesAndUserCode(schoolCodes, userCode)
+
+        // verify
+        assertThat(actual).hasSize(2)
+        assertThat(actual[0].schoolId).isEqualTo("school_id_003")
+        assertThat(actual[1].schoolId).isEqualTo("school_id_002")
+    }
+
+    @Test
+    @FlywayTest(locationsForMigrate = ["/db/fixtures_school"])
+    @DisplayName("findBySchoolCodeAndUserCode のテスト(存在しない)")
+    fun testFindBySchoolCodeAndUserCode_NotExists() {
+        // setup
+        val schoolCodes = listOf("school_code_999", "school_code_003")
+        val userCode = "user_002" // user_code が異なる
+
+        // execution
+        val actual = sut.findBySchoolCodesAndUserCode(schoolCodes, userCode)
+
+        // verify
+        assertThat(actual).isEmpty()
+    }
 }
