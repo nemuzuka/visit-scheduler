@@ -3,8 +3,7 @@ package net.jp.vss.visitscheduler.controller.schedules
 import net.jp.vss.visitscheduler.controller.exceptions.HttpBadRequestException
 import net.jp.vss.visitscheduler.controller.exceptions.HttpConflictException
 import net.jp.vss.visitscheduler.domain.exceptions.DuplicateException
-import net.jp.vss.visitscheduler.usecase.schedules.CreateScheduleUseCase
-import net.jp.vss.visitscheduler.usecase.schedules.ScheduleUseCaseResult
+import net.jp.vss.visitscheduler.usecase.schedules.SavePrivateScheduleUseCase
 import net.jp.vss.visitscheduler.usecase.users.GetUserUseCase
 import org.slf4j.LoggerFactory
 import org.springframework.http.MediaType
@@ -18,44 +17,42 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 /**
- * CreateSchedule の APIController.
+ * SavePrivateSchedule の APIController.
  *
  * @property getUserUseCase GetUserUseCase の UseCase
- * @property createScheduleUseCase CreateSchedule の UseCase
+ * @property savePrivateScheduleUseCase SavePrivateScheduleUseCase の UseCase
  */
 @RestController
-@RequestMapping("/api/schedules")
+@RequestMapping("/api/private-schedules")
 @Validated
-class CreateScheduleApiController(
+class SavePrivateScheduleApiController(
     private val getUserUseCase: GetUserUseCase,
-    private val createScheduleUseCase: CreateScheduleUseCase
+    private val savePrivateScheduleUseCase: SavePrivateScheduleUseCase
 ) {
     companion object {
-        private val log = LoggerFactory.getLogger(CreateScheduleApiController::class.java)
+        private val log = LoggerFactory.getLogger(SavePrivateScheduleApiController::class.java)
     }
 
     /**
-     * CreateSchedule.
+     * SavePrivateSchedule.
      *
      * @param parameter パラメータ
      * @return レスポンス
      */
     @PostMapping(consumes = [MediaType.APPLICATION_JSON_VALUE])
-    fun createSchedule(
+    fun savePrivateSchedule(
         @Validated
         @RequestBody
-        parameter: CreateScheduleApiParameter
-    ): ResponseEntity<ScheduleUseCaseResult> {
-
+        parameter: SavePrivateScheduleApiParameter
+    ): ResponseEntity<String> {
         try {
-
             val authentication = SecurityContextHolder.getContext().authentication as OAuth2AuthenticationToken
             val principal = authentication.principal
             val user = getUserUseCase.getUser(authentication.authorizedClientRegistrationId, principal.name)
 
-            val result = createScheduleUseCase.createSchedule(
+            val result = savePrivateScheduleUseCase.savePrivateSchedule(
                 parameter.toParameter(user!!.userCode))
-            return ResponseEntity.ok(result)
+            return ResponseEntity.ok("")
         } catch (e: DuplicateException) {
             // 既に user_code が存在した場合
             log.info("Conclift Parameter({}) {}", parameter, e.message)

@@ -1,12 +1,14 @@
 package net.jp.vss.visitscheduler.domain.schedules
 
+import java.lang.IllegalArgumentException
+import java.time.LocalDate
 import net.jp.vss.visitscheduler.DatetimeUtils
 import net.jp.vss.visitscheduler.domain.Attributes
 import net.jp.vss.visitscheduler.domain.ResourceAttributes
 import net.jp.vss.visitscheduler.domain.exceptions.UnmatchVersionException
 import net.jp.vss.visitscheduler.domain.users.User
-import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.catchThrowable
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -79,11 +81,37 @@ class ScheduleTest {
         val version = sut.resourceAttributes.version + 1
 
         // execution
-        val actual = Assertions.catchThrowable { sut.validateVersion(version) }
+        val actual = catchThrowable { sut.validateVersion(version) }
 
         // verify
         assertThat(actual).isInstanceOfSatisfying(UnmatchVersionException::class.java) { e ->
             assertThat(e.message).isEqualTo("指定した version が不正です")
+        }
+    }
+
+    @Test
+    fun testScheduleDateOf() {
+        // setup
+        val targetYearAndMonth = Schedule.TargetYearAndMonth("2020-01")
+
+        // execution
+        val actual = Schedule.ScheduleDate.of(targetYearAndMonth, 31)
+
+        // verify
+        assertThat(actual).isEqualTo(Schedule.ScheduleDate(LocalDate.parse("2020-01-31")))
+    }
+
+    @Test
+    fun testScheduleDateOf_InvalidDay_ThrowIllegalArgumentException() {
+        // setup
+        val targetYearAndMonth = Schedule.TargetYearAndMonth("2020-01")
+
+        // execution
+        val actual = catchThrowable { Schedule.ScheduleDate.of(targetYearAndMonth, 32) }
+
+        // verify
+        assertThat(actual).isInstanceOfSatisfying(IllegalArgumentException::class.java) { e ->
+            assertThat(e.message).isEqualTo("2020-01-32 は不正な日付です。")
         }
     }
 }
