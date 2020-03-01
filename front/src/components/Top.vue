@@ -1,8 +1,15 @@
 <template>
   <div>
     <div class="box has-text-centered">
-      <h1 class="title">タスク一覧</h1>
+      <h1 class="title">スケジュール一覧</h1>
     </div>
+
+    <button class="button is-info is-inverted" @click="moveCreateSchedule">
+      <span class="icon is-small">
+        <font-awesome-icon icon="calendar" />
+      </span>
+      <span>スケジュールを追加する</span>
+    </button>
 
     <p class="edit-user"><a @click="moveUserSettings"><font-awesome-icon icon="user-cog" /></a></p>
     <p class="school"><a @click="moveSchool"><font-awesome-icon icon="school" /></a></p>
@@ -126,6 +133,10 @@ export default {
     moveSchool() {
       const self = this
       self.$router.push('/school')
+    },
+    moveCreateSchedule() {
+      const self = this
+      self.$router.push('/edit-schedule/_new')
     }
   }
 }

@@ -7,6 +7,7 @@ import Error from './components/Error.vue';
 import TaskEdit  from './components/task/Edit.vue';
 import SchoolTop  from './components/school/Top.vue';
 import SchoolEdit  from './components/school/Edit.vue';
+import ScheduleCreate  from './components/schedule/Create.vue';
 
 Vue.use(VueRouter);
 
@@ -18,6 +19,7 @@ const routes = [
   { path: '/edit-task/:task_code', component: TaskEdit },
   { path: '/school', component: SchoolTop },
   { path: '/edit-school/:school_code', component: SchoolEdit },
+  { path: '/edit-schedule/_new', component: ScheduleCreate },
 ];
 
 const router = new VueRouter({
