@@ -1,5 +1,9 @@
 package net.jp.vss.visitscheduler.domain.schedules
 
+import java.lang.IllegalArgumentException
+import java.time.DateTimeException
+import java.time.LocalDate
+import java.time.YearMonth
 import net.jp.vss.visitscheduler.domain.Attributes
 import net.jp.vss.visitscheduler.domain.ResourceAttributes
 import net.jp.vss.visitscheduler.domain.exceptions.UnmatchVersionException
@@ -101,4 +105,33 @@ data class Schedule(
     data class SchoolCodeAndCalculationTargets(
         val schoolCodeAndCalculationTargets: List<SchoolCodeAndCalculationTarget>
     )
+
+    /**
+     * スケジュールに関連する日付
+     *
+     * @property date 日付
+     */
+    data class ScheduleDate(
+        val date: LocalDate
+    ) {
+        companion object {
+            /**
+             * 年月、日から生成.
+             *
+             * @param targetYearAndMonth 年月
+             * @param dayOfMonth 日
+             * @return スケジュールに関連する日付
+             *
+             * @throws IllegalArgumentException 不正な日を指定した
+             */
+            fun of(targetYearAndMonth: TargetYearAndMonth, dayOfMonth: Int): ScheduleDate {
+                try {
+                    return ScheduleDate(YearMonth.parse(targetYearAndMonth.value).atDay(dayOfMonth))
+                } catch (e: DateTimeException) {
+                    val message = "${targetYearAndMonth.value}-$dayOfMonth は不正な日付です。"
+                    throw IllegalArgumentException(message, e)
+                }
+            }
+        }
+    }
 }
