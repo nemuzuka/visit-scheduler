@@ -3,7 +3,7 @@
     <div class="card card-area" style="cursor: pointer;" @click.stop="moveScheduleDetail">
       <div class="card-content">
         <p class="title">
-          {{schedule.target_year_and_month}} 分
+          {{title}}
         </p>
       </div>
     </div>
@@ -12,9 +12,20 @@
 </template>
 
 <script>
+  import Utils from '../../utils.js'
+
   export default {
     name: 'schedule-item',
     props: ["schedule"],
+    data() {
+      return {
+        title: ""
+      }
+    },
+    created () {
+      const self = this
+      self.title = Utils.targetYearAndMonthForView(self.schedule.target_year_and_month)
+    },
     methods: {
       moveScheduleDetail() {
         const self = this
