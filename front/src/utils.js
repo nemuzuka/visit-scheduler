@@ -75,4 +75,14 @@ export default class Utils {
     document.getElementById(id).style.display ="none"
   }
 
+  /**
+   * 表示用 targetYearAndMonth 文字列生成.
+   * @param targetYearAndMonth 対象年月文字列(YYYY-MM 形式)
+   * @return string 表示用文字列
+   */
+  static targetYearAndMonthForView(targetYearAndMonth) {
+    const result = targetYearAndMonth.split('-')
+    return result[0] + "年" + parseInt(result[1]) + "月"
+  }
+
 }
