@@ -86,3 +86,10 @@ p.back a {
 p.back a i {
     margin-top: 8px;
 }
+
+/*  */
+
+.is-vertical-center {
+    display: flex;
+    align-items: center;
+}

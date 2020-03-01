@@ -27,5 +27,5 @@ CREATE TABLE schedule_school_connections (
 ALTER TABLE schedule_school_connections ADD CONSTRAINT schedule_school_connections_primary PRIMARY KEY(schedule_school_connection_id);
 CREATE UNIQUE INDEX ui_schedule_school_connections_schedule_id_school_id ON schedule_school_connections (schedule_id, school_id);
 CREATE INDEX ix_schedule_school_connections_schedule_id_connection_index ON schedule_school_connections (schedule_id, connection_index);
-ALTER TABLE schedule_school_connections ADD CONSTRAINT fk_schedule_school_connections_schedules FOREIGN KEY (schedule_id) REFERENCES schedules (schedule_id);
+ALTER TABLE schedule_school_connections ADD CONSTRAINT fk_schedule_school_connections_schedules FOREIGN KEY (schedule_id) REFERENCES schedules (schedule_id) ON DELETE CASCADE;
 ALTER TABLE schedule_school_connections ADD CONSTRAINT fk_schedule_school_connections_schools FOREIGN KEY (school_id) REFERENCES schools (school_id) ON DELETE CASCADE;
