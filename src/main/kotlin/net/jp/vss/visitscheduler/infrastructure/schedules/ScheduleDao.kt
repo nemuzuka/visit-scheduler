@@ -46,4 +46,22 @@ interface ScheduleDao {
     """)
     @Select
     fun findByScheduleCodeAndUserCode(scheduleCode: String, userCode: String, options: SelectOptions): ScheduleEntity?
+
+    /**
+     * 全件取得.
+     *
+     * @param userCode ユーザコード
+     * @return 該当データ(存在しない場合、空リスト)
+     */
+    @Sql("""
+        SELECT
+            s.*,
+            u.user_code
+        FROM
+            schedules AS s
+            INNER JOIN (SELECT user_id, user_code FROM users WHERE user_code = /*userCode*/'def') AS u ON s.user_id = u.user_id
+        ORDER BY s.target_start_date DESC
+    """)
+    @Select
+    fun findAll(userCode: String): List<ScheduleEntity>
 }

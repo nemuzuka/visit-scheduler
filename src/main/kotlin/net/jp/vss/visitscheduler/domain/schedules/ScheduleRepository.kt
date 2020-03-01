@@ -42,4 +42,12 @@ interface ScheduleRepository {
      * @throws NotFoundException 該当レコードが存在しない
      */
     fun lockSchedule(scheduleCode: Schedule.ScheduleCode, userCode: User.UserCode): Schedule
+
+    /**
+     * 全件取得.
+     *
+     * @param userCode ユーザコード
+     * @return 該当レコード
+     */
+    fun allSchedules(userCode: User.UserCode): List<Schedule>
 }
