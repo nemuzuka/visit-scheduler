@@ -119,6 +119,49 @@ class ScheduleDaoTest {
         assertThat(actual).isEqualTo(schedule.copy(userCode = user.userCode))
     }
 
+    @Test
+    @FlywayTest
+    @DisplayName("findAll のテスト")
+    fun testFindAll() {
+        // setup
+        val user = createUser()
+        val scheduleCode1 = "SCHE-0001"
+        val schedule1 = createSchedule(scheduleCode1, user.userId, LocalDate.parse("2020-02-01"))
+        val scheduleCode2 = "SCHE-0002"
+        val schedule2 = createSchedule(scheduleCode2, user.userId, LocalDate.parse("2020-01-01"))
+
+        // execution
+        val actual = sut.findAll(user.userCode)
+
+        // verify
+        assertThat(actual).hasSize(2)
+        assertThat(actual[0]).isEqualTo(schedule1.copy(userCode = user.userCode))
+        assertThat(actual[1]).isEqualTo(schedule2.copy(userCode = user.userCode))
+    }
+
+    @Test
+    @FlywayTest
+    @DisplayName("findAll のテスト. 異なる user の schedule は取得できないこと")
+    fun testFindAll_DiffrentUserCode() {
+        // setup
+        val user1 = createUser(userCode = "USER-0001")
+        val user1ScheduleCode1 = "SCHE-0001"
+        val user1Schedule1 = createSchedule(user1ScheduleCode1, user1.userId, LocalDate.parse("2020-02-01"))
+        val user1ScheduleCode2 = "SCHE-0002"
+        val user1Schedule2 = createSchedule(user1ScheduleCode2, user1.userId, LocalDate.parse("2020-03-01"))
+        val user2 = createUser(userCode = "USER-0002")
+        val user2ScheduleCode1 = "SCHE-0003"
+        val user2Schedule1 = createSchedule(user2ScheduleCode1, user2.userId, LocalDate.parse("2020-02-01"))
+
+        // execution
+        val actual = sut.findAll(user1.userCode)
+
+        // verify
+        assertThat(actual).hasSize(2)
+        assertThat(actual[0]).isEqualTo(user1Schedule2.copy(userCode = user1.userCode)) // order by で並び替え
+        assertThat(actual[1]).isEqualTo(user1Schedule1.copy(userCode = user1.userCode))
+    }
+
     private fun createUser(userCode: String = "USER-0001"): UserEntity {
         val authenticatedPrincipal = AuthenticatedPrincipalEntity(authenticatedPrincipalId = "$userCode-TEST01",
             principal = "$userCode-HOGE-PRINCIPAL01", authorizedClientRegistrationId = "$userCode-google")
@@ -130,7 +173,7 @@ class ScheduleDaoTest {
 
     private fun createSchedule(scheduleCode: String, userId: String, targetStartDate: LocalDate): ScheduleEntity {
         val schedule = ScheduleEntityFixtures.create(scheduleCode, userId = userId)
-            .copy(targetStartDate = targetStartDate)
+            .copy(scheduleId = UUID.randomUUID().toString(), targetStartDate = targetStartDate)
         return sut.create(schedule).entity
     }
 }

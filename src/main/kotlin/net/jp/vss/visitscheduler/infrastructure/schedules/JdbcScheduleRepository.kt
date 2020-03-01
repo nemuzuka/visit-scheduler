@@ -80,4 +80,8 @@ class JdbcScheduleRepository(
 
     override fun lockSchedule(scheduleCode: Schedule.ScheduleCode, userCode: User.UserCode): Schedule =
         getSchedule(scheduleCode, userCode, true)
+
+    override fun allSchedules(userCode: User.UserCode): List<Schedule> {
+        return scheduleDao.findAll(userCode = userCode.value).map { it.toSchedule() }.toList()
+    }
 }

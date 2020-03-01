@@ -191,4 +191,23 @@ class JdbcScheduleRepositoryTest {
             .returns(ResourceAttributes("create_user_002", 1646732800002, "last_update_user_002", 1746732800002, 2),
                 Schedule::resourceAttributes)
     }
+
+    @Test
+    @FlywayTest(locationsForMigrate = ["db/fixtures_schedule"])
+    @DisplayName("allSchedules のテスト")
+    fun testAllSchedules() {
+        // execution
+        val actual = sut.allSchedules(User.UserCode("user_code_001"))
+
+        // verify
+        assertThat(actual).hasSize(1)
+        assertThat(actual[0])
+            .returns(Schedule.ScheduleCode("schedule_code_001"), Schedule::scheduleCode)
+            .returns(User.UserCode("user_code_001"), Schedule::userCode)
+            .returns(Schedule.TargetYearAndMonth("2019-01"), Schedule::targetYearAndMonth)
+            .returns(Schedule.ScheduleDetail(attributes = Attributes.of("{\"hige\":\"hage\"}")),
+                Schedule::scheduleDetail)
+            .returns(ResourceAttributes("create_user_002", 1646732800002, "last_update_user_002", 1746732800002, 2),
+                Schedule::resourceAttributes)
+    }
 }
