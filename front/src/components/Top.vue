@@ -1,15 +1,15 @@
 <template>
   <div>
-    <div class="box has-text-centered">
-      <h1 class="title">スケジュール一覧</h1>
-    </div>
-
-    <button class="button is-info is-inverted" @click="moveCreateSchedule">
+    <div class="box">
+      <button class="button is-large is-fullwidth" @click="moveCreateSchedule">
       <span class="icon is-small">
         <font-awesome-icon icon="calendar" />
       </span>
-      <span>スケジュールを追加する</span>
-    </button>
+        <span>スケジュールを登録する</span>
+      </button>
+    </div>
+
+    <schedule-list :schedules="schedules" :message="scheduleMessage" @Refresh="refresh"></schedule-list>
 
     <p class="edit-user"><a @click="moveUserSettings"><font-awesome-icon icon="user-cog" /></a></p>
     <p class="school"><a @click="moveSchool"><font-awesome-icon icon="school" /></a></p>
@@ -19,112 +19,37 @@
 
 <script>
 
-import Utils from '../utils'
-
-const SORT_CONDITION_KEY = "SORT_CONDITION"
+import ScheduleList from './schedule/ScheduleList'
 
 export default {
+  components: {
+    ScheduleList
+  },
   name: 'top',
   data() {
     return {
-      tasks: [],
-      taskMessage: "",
-      allTasks: [],
-      sortConditions:{
-        status: "OPEN_ONLY",
-        deadline: "NONE"
-      }
+      schedules: [],
+      scheduleMessage: ""
     }
   },
   created () {
     const self = this
-    const condition = Utils.getLocalStorage(SORT_CONDITION_KEY)
-    if(condition !== null) {
-      // localStrage より取得して設定
-      self.sortConditions.status = condition.status
-      self.sortConditions.deadline = condition.deadline
-    }
     self.refresh()
   },
   methods: {
     async refresh() {
       const self = this
-      self.taskMessage = ""
+      self.scheduleMessage = ""
 
-      const tasks = []
-      tasks.splice(0,tasks.length)
+      const response = await self.$http.get('/api/schedules')
+      self.schedules.splice(0, self.schedules.length)
 
-      self.allTasks = []
-      const sortedTasks = self.allTasks
-        .filter(self.filterTask)
-        .sort(self.sortTask)
-      tasks.push(...sortedTasks)
+      const schedules = response.data.elements
+      self.schedules.push(...schedules)
 
-      if(sortedTasks.length <= 0) {
-        self.taskMessage = "表示するタスクがありません"
+      if(schedules.length <= 0) {
+        self.scheduleMessage = "表示するスケジュールがありません"
       }
-    },
-    filterTask(task) {
-      const self = this
-
-      // status の絞り込み
-      const statusCondition = self.sortConditions.status
-      if(statusCondition === "OPEN_ONLY" && task.status === "DONE") {
-        return false
-      }
-      if(statusCondition === "DONE_ONLY" && task.status === "OPEN") {
-        return false
-      }
-
-      // deadline の絞り込み
-      const deadlineCondition = self.sortConditions.deadline
-      if(deadlineCondition === "SET_ONLY" && task.deadline === null) {
-        return false
-      }
-      if(deadlineCondition === "NULL_ONLY" && task.deadline !== null) {
-        return false
-      }
-
-      return true
-    },
-    sortTask(taskA, taskB) {
-      // ステータス(OPEN, DONE の順)
-      const statusA = taskA.status
-      const statusB = taskB.status
-      if(statusA !== statusB) {
-        return statusA > statusB ? -1 : 1 // DONE より OPEN が先
-      }
-
-      // 期限 asc
-      const deadlineA = taskA.deadline === null ? Number.MAX_VALUE : taskA.deadline
-      const deadlineB = taskB.deadline === null ? Number.MAX_VALUE : taskB.deadline
-      const deadlineResult = deadlineA - deadlineB
-      if(deadlineResult !== 0) {
-        return deadlineResult
-      }
-
-      // task_code
-      const taskCodeA = taskA.task_code
-      const taskCodeB = taskB.task_code
-      if(taskCodeA !== taskCodeB) {
-        return taskCodeA < taskCodeB ? -1 : 1
-      }
-      return 0
-    },
-    openFilterConditionDialog(){
-      const self = this
-      self.$refs.filterConditionDialog.openDialog()
-    },
-    setCondition(e, condition) {
-
-      const self = this;
-      self.sortConditions.status = condition.status
-      self.sortConditions.deadline = condition.deadline
-
-      // localStrage に設定
-      Utils.setLocalStorage(SORT_CONDITION_KEY, condition)
-
-      self.refresh()
     },
     moveUserSettings() {
       const self = this
