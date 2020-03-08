@@ -6,9 +6,10 @@ import com.nhaarman.mockitokotlin2.doNothing
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import net.jp.vss.visitscheduler.DatetimeUtils
-import net.jp.vss.visitscheduler.domain.schedules.PrivateSchedule
-import net.jp.vss.visitscheduler.domain.schedules.PrivateScheduleRepository
 import net.jp.vss.visitscheduler.domain.schedules.Schedule
+import net.jp.vss.visitscheduler.domain.schedules.SchoolSchedule
+import net.jp.vss.visitscheduler.domain.schedules.SchoolScheduleRepository
+import net.jp.vss.visitscheduler.domain.schools.School
 import net.jp.vss.visitscheduler.domain.users.User
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
@@ -20,16 +21,16 @@ import org.mockito.Mock
 import org.springframework.test.context.junit.jupiter.SpringExtension
 
 /**
- * CreatePrivateScheduleUseCaseImpl のテスト.
+ * SaveSchoolScheduleUseCaseImpl のテスト.
  */
 @ExtendWith(SpringExtension::class)
-class SavePrivateScheduleUseCaseImplTest {
+class SaveSchoolScheduleUseCaseImplTest {
 
     @Mock
-    private lateinit var privateScheduleRepo: PrivateScheduleRepository
+    private lateinit var schoolScheduleRepo: SchoolScheduleRepository
 
     @InjectMocks
-    private lateinit var sut: SavePrivateScheduleUseCaseImpl
+    private lateinit var sut: SaveSchoolScheduleUseCaseImpl
 
     companion object {
         const val NOW = 1546268400002L
@@ -46,30 +47,33 @@ class SavePrivateScheduleUseCaseImplTest {
     }
 
     @Test
-    fun testCreatePrivateSchedule() {
+    fun testCreateSchoolSchedule() {
         // setup
-        doNothing().whenever(privateScheduleRepo).save(any(), any(), any())
+        doNothing().whenever(schoolScheduleRepo).save(any(), any(), any(), any())
 
-        val input = SavePrivateScheduleUseCaseParameterFixtures.create()
+        val input = SaveSchoolScheduleUseCaseParameterFixtures.create()
 
         // execution
-        sut.savePrivateSchedule(input)
+        sut.saveSchoolSchedule(input)
 
         // verify
-        argumentCaptor< User.UserCode, Schedule.TargetYearAndMonth, List<PrivateSchedule>>().let {
-            (userCodeCaptor, targetYearAndMonthCaptor, privateSchedulesCaptor) ->
+        argumentCaptor< User.UserCode, School.SchoolCode, Schedule.TargetYearAndMonth, List<SchoolSchedule>>().let {
+            (userCodeCaptor, schoolCodeCaptor, targetYearAndMonthCaptor, schoolSchedulesCaptor) ->
 
-            verify(privateScheduleRepo).save(userCodeCaptor.capture(), targetYearAndMonthCaptor.capture(),
-                privateSchedulesCaptor.capture())
+            verify(schoolScheduleRepo).save(userCodeCaptor.capture(), schoolCodeCaptor.capture(),
+                targetYearAndMonthCaptor.capture(), schoolSchedulesCaptor.capture())
 
             val capturedUserCode = userCodeCaptor.firstValue
             assertThat(capturedUserCode).isEqualTo(User.UserCode(input.createUserCode))
 
+            val capturedSchoolCode = schoolCodeCaptor.firstValue
+            assertThat(capturedSchoolCode).isEqualTo(School.SchoolCode(input.schoolCode))
+
             val capturedTargetYearAndMonthCaptor = targetYearAndMonthCaptor.firstValue
             assertThat(capturedTargetYearAndMonthCaptor).isEqualTo(Schedule.TargetYearAndMonth(input.targetDateString))
 
-            val capturedPrivateSchedules = privateSchedulesCaptor.firstValue
-            assertThat(capturedPrivateSchedules).isEqualTo(input.toPrivateSchedules())
+            val capturedSchoolSchedules = schoolSchedulesCaptor.firstValue
+            assertThat(capturedSchoolSchedules).isEqualTo(input.toSchoolSchedules())
         }
     }
 }

@@ -51,7 +51,7 @@ dependencies {
     implementation("org.flywaydb:flyway-core:$flywayVersion")
     testImplementation("org.flywaydb.flyway-test-extensions:flyway-dbunit-test:6.1.0")
 
-    testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.1.0")
+    testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0")
     testImplementation("org.mockito:mockito-junit-jupiter")
 
     // doma
