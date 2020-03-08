@@ -1,7 +1,7 @@
 package net.jp.vss.visitscheduler.usecase.schedules
 
-import com.nhaarman.mockitokotlin2.KArgumentCaptor
 import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import net.jp.vss.visitscheduler.DatetimeUtils
@@ -17,7 +17,6 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.ArgumentCaptor
 import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.springframework.test.context.junit.jupiter.SpringExtension
@@ -63,7 +62,7 @@ class CreateScheduleUseCaseImplTest {
         assertThat(actual).isEqualTo(ScheduleUseCaseResult.of(createdSchedule))
 
         // org.mockito.ArgumentCaptor を使用する代わり
-        captor2< Schedule, Schedule.SchoolCodeAndCalculationTargets>().let {
+        argumentCaptor< Schedule, Schedule.SchoolCodeAndCalculationTargets>().let {
             (scheduleCaptor, schoolCodeAndCalculationTargetCaptor) ->
 
             verify(scheduleRepo).create(scheduleCaptor.capture(), schoolCodeAndCalculationTargetCaptor.capture())
@@ -92,10 +91,5 @@ class CreateScheduleUseCaseImplTest {
             )
             assertThat(capturedSchoolCodeAndCalculationTargets).isEqualTo(expectedSchoolCodeAndCalculationTargets)
         }
-    }
-
-    private inline fun <reified A : Any, reified B : Any> captor2(): Pair<KArgumentCaptor<A>, KArgumentCaptor<B>> {
-        return Pair(KArgumentCaptor(ArgumentCaptor.forClass(A::class.java), A::class),
-            KArgumentCaptor(ArgumentCaptor.forClass(B::class.java), B::class))
     }
 }
