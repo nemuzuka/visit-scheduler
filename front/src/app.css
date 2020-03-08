@@ -87,9 +87,26 @@ p.back a i {
     margin-top: 8px;
 }
 
-/*  */
+/* ダイアログ. */
+
+.dialog-title {
+    overflow: hidden;
+    width: 80%;
+}
+.dialog-title span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+
+/* 共通. */
 
 .is-vertical-center {
     display: flex;
     align-items: center;
+}
+
+.label-target {
+    width: 4em;
 }
