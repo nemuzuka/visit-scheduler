@@ -37,7 +37,6 @@
         targetDays:[
           {
             day: 1,
-            dateString: '',
             weekdayString: ''
           }
         ],
