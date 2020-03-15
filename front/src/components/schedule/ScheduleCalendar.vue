@@ -12,12 +12,12 @@
       </tr>
       </thead>
       <tbody>
-      <tr v-for="day in days" :key="day">
-        <td>{{day}} ({{weekdayStrings[day-1]}})</td>
+      <tr v-for="targetDay in targetDays" :key="targetDay.day">
+        <td>{{targetDay.day}} ({{targetDay.weekdayString}})</td>
         <td></td>
-        <td>{{viewPrivateSchedule(day)}}</td>
+        <td>{{viewPrivateSchedule(targetDay.day)}}</td>
         <td v-for="(schoolWithSchedule, index) in schoolWithSchedules" :key="schoolWithSchedule.school.school_code">
-          {{viewSchoolSchedule(index, day)}}
+          {{viewSchoolSchedule(index, targetDay.day)}}
         </td>
       </tr>
       </tbody>
@@ -27,15 +27,19 @@
 
 <script>
   import Moment from "moment"
-  import Utils from "../../../utils"
+  import Utils from "../../utils"
 
   export default {
     name: 'schedule-calendar',
     props: ["privateSchedules", "schoolWithSchedules", "targetYearAndMonth"],
     data() {
       return {
-        days: [],
-        weekdayStrings: []
+        targetDays:[
+          {
+            day: 1,
+            weekdayString: ''
+          }
+        ],
       }
     },
     created () {
@@ -45,16 +49,19 @@
     methods: {
       refresh() {
         const self = this
-        self.days.splice(0, self.days.length)
-        self.weekdayStrings.splice(0, self.weekdayStrings.length)
+        self.targetDays.splice(0, self.targetDays.length)
 
         const startDate = Moment(self.targetYearAndMonth+"-01", 'YYYY-MM-DD')
         const endOfDate = Moment(startDate).add(1, 'month')
         let targetDate = Moment(startDate)
         let day = 1
         while (targetDate.unix() < endOfDate.unix()) {
-          self.days.push(day)
-          self.weekdayStrings.push(Utils.getWeekdayString(targetDate))
+
+          self.targetDays.push({
+            day: day,
+            weekdayString: Utils.getWeekdayString(targetDate)
+          })
+
           targetDate = Moment(targetDate).add(1, 'days')
           day++
         }
