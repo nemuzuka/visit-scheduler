@@ -53,8 +53,6 @@
         const response = await self.$http.get('/api/schedules/' + self.sceduleCode)
 
         const scheduleDetail = response.data
-        self.targetYearAndMonth = scheduleDetail.target_year_and_month
-        self.scheduleTitle = Utils.targetYearAndMonthForView(self.targetYearAndMonth) + " スケジュール"
         self.scheduleDetail.version = scheduleDetail.version
 
         self.schoolWithSchedules.splice(0, self.schoolWithSchedules.length)
@@ -62,6 +60,9 @@
 
         self.privateSchedules.splice(0, self.privateSchedules.length)
         self.privateSchedules.push(...scheduleDetail.private_schedules)
+
+        self.targetYearAndMonth = scheduleDetail.target_year_and_month
+        self.scheduleTitle = Utils.targetYearAndMonthForView(self.targetYearAndMonth) + " スケジュール"
 
       } catch(error) {
         console.log(error.response.data)
