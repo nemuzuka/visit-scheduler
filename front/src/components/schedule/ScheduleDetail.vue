@@ -60,7 +60,7 @@
 
         self.privateSchedules.splice(0, self.privateSchedules.length)
         self.privateSchedules.push(...scheduleDetail.private_schedules)
-        
+
         self.targetYearAndMonth = scheduleDetail.target_year_and_month
         self.scheduleTitle = Utils.targetYearAndMonthForView(self.targetYearAndMonth) + " スケジュール"
 
