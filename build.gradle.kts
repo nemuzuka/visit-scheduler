@@ -63,6 +63,9 @@ dependencies {
     // jackson
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 
+    // JSONassert
+    testImplementation ("org.skyscreamer:jsonassert:1.5.0")
+
     // spring 関連
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
