@@ -24,7 +24,7 @@
 
   import Utils from "../../utils"
   import SelectSchoolDialog from "./school/SelectSchoolDialog"
-  import ScheduleCalendar from "./school/ScheduleCalendar"
+  import ScheduleCalendar from "./ScheduleCalendar"
 
   export default {
     name: 'schedule-detail',
