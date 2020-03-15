@@ -17,9 +17,9 @@
             </tr>
             </thead>
             <tbody>
-              <tr v-for="school in schools" :key="school.school_code" style="cursor: pointer" @click="moveSchoolSchedule(school)">
-                <td class="has-text-centered">{{toCalculationTargetLabel(school.calculationTarget)}}</td>
-                <td>{{school.name}}</td>
+              <tr v-for="schoolWithSchedule in schoolWithSchedules" :key="schoolWithSchedule.school.school_code" style="cursor: pointer" @click="moveSchoolSchedule(schoolWithSchedule.school)">
+                <td class="has-text-centered">{{toCalculationTargetLabel(schoolWithSchedule.calculation_target)}}</td>
+                <td>{{schoolWithSchedule.school.name}}</td>
               </tr>
             </tbody>
           </table>
@@ -37,7 +37,7 @@
   import Utils from '../../../utils'
   export default {
     name: 'select-school-dialog',
-    props: ["targetYearAndMonth", "schools"],
+    props: ["targetYearAndMonth", "schoolWithSchedules"],
     methods: {
       openDialog() {
         Utils.openDialog('select-schedule-dialog')

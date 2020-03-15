@@ -17,7 +17,7 @@ data class ScheduleDetailUseCaseResult(
     @field:JsonUnwrapped
     val scheduleUseCaseResult: ScheduleUseCaseResult,
 
-    @field:JsonProperty("private_scheduls")
+    @field:JsonProperty("private_schedules")
     val privateScheduleUseCaseResults: List<PrivateScheduleUseCaseResult>,
 
     @field:JsonUnwrapped
