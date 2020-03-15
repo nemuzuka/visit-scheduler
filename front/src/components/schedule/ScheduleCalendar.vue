@@ -37,14 +37,11 @@
         targetDays:[
           {
             day: 1,
+            dateString: '',
             weekdayString: ''
           }
         ],
       }
-    },
-    created () {
-      const self = this
-      self.refresh()
     },
     methods: {
       refresh() {
@@ -104,6 +101,12 @@
           message += "(" + memo + ")"
         }
         return message
+      }
+    },
+    watch: {
+      targetYearAndMonth: function() {
+        const self = this
+        self.refresh()
       }
     }
   }
