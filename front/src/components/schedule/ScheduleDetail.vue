@@ -11,7 +11,9 @@
       <button class="button">優先度設定</button>
     </div>
 
-    <select-school-dialog :targetYearAndMonth="targetYearAndMonth" :schools="schools" ref="selectSchoolDialog"></select-school-dialog>
+    <schedule-calendar :targetYearAndMonth="targetYearAndMonth" :privateSchedules="privateSchedules" :schoolWithSchedules="schoolWithSchedules"></schedule-calendar>
+
+    <select-school-dialog :targetYearAndMonth="targetYearAndMonth" :schoolWithSchedules="schoolWithSchedules" ref="selectSchoolDialog"></select-school-dialog>
 
     <p class="back"><a @click="moveTop"><font-awesome-icon icon="arrow-left" /></a></p>
 
@@ -20,35 +22,55 @@
 
 <script>
 
-  import SelectSchoolDialog from "./school/SelectSchoolDialog"
   import Utils from "../../utils"
+  import SelectSchoolDialog from "./school/SelectSchoolDialog"
+  import ScheduleCalendar from "./school/ScheduleCalendar"
 
   export default {
     name: 'schedule-detail',
     components:{
-      SelectSchoolDialog
+      SelectSchoolDialog,
+      ScheduleCalendar
     },
     data() {
       return {
         scheduleTitle: "",
         scheduleCode: "",
-        scheduleDetail:{},
-        targetYearAndMonth : "2020-03", // ひとまず
-        schools:[
-          {
-            school_code:"96c36211-3c06-40a1-a2cf-c5fe7ed08270",
-            name: "学校名1",
-            calculationTarget: true
-          }
-        ]
+        scheduleDetail:{
+          version: 0
+        },
+        targetYearAndMonth : "",
+        schoolWithSchedules:[],
+        privateSchedules:[]
       }
     },
-    created () {
+    async created () {
       const self = this
-      self.scheduleTitle = Utils.targetYearAndMonthForView(self.targetYearAndMonth) + " スケジュール" // XXX年XX月のスケジュール 的な記載にしたい
       self.sceduleCode = self.$route.params.schedule_code
       localStorage.sceduleCode = self.sceduleCode
-      // TODO schedule.targetYearAndMonth を更新する
+
+      try {
+        const response = await self.$http.get('/api/schedules/' + self.sceduleCode)
+
+        const scheduleDetail = response.data
+        self.targetYearAndMonth = scheduleDetail.target_year_and_month
+        self.scheduleTitle = Utils.targetYearAndMonthForView(self.targetYearAndMonth) + " スケジュール"
+        self.scheduleDetail.version = scheduleDetail.version
+
+        self.schoolWithSchedules.splice(0, self.schoolWithSchedules.length)
+        self.schoolWithSchedules.push(...scheduleDetail.school_with_schedules)
+
+        self.privateSchedules.splice(0, self.privateSchedules.length)
+        self.privateSchedules.push(...scheduleDetail.private_schedules)
+
+      } catch(error) {
+        console.log(error.response.data)
+        if(error.response.status === 404) {
+          const errorData = error.response.data
+          alert(errorData.message)
+        }
+        await self.$router.push('/')
+      }
     },
     methods: {
       moveTop() {

@@ -63,7 +63,7 @@ class ScheduleDetailUseCaseResultTest {
         val expected = """
             |{
             |   $scheduleJsonString,
-            |   "private_scheduls": [
+            |   "private_schedules": [
             |       {
             |           "target_day": ${sut.privateScheduleUseCaseResults[0].targetDay},
             |           "memo": "${sut.privateScheduleUseCaseResults[0].memo}"
