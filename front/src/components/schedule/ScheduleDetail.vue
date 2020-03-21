@@ -9,11 +9,13 @@
       <button class="button" @click="movePrivateSchedule">個人スケジュール設定</button>
       <button class="button" @click="openSchoolScheduleDialog">学校スケジュール設定</button>
       <button class="button">優先度設定</button>
+      <button class="button" @click="openScheduleSettingDialog">スケジュール計算</button>
     </div>
 
-    <schedule-calendar :targetYearAndMonth="targetYearAndMonth" :privateSchedules="privateSchedules" :schoolWithSchedules="schoolWithSchedules"></schedule-calendar>
+    <schedule-calendar :targetYearAndMonth="targetYearAndMonth" :privateSchedules="privateSchedules" :schoolWithSchedules="schoolWithSchedules" :visitSchedules="visitSchedules" ref="scheduleCalendar"></schedule-calendar>
 
     <select-school-dialog :targetYearAndMonth="targetYearAndMonth" :schoolWithSchedules="schoolWithSchedules" ref="selectSchoolDialog"></select-school-dialog>
+    <schedule-setting-dialog :targetYearAndMonth="targetYearAndMonth" :schoolWithSchedules="schoolWithSchedules" :privateSchedules="privateSchedules" :visitSchedules="visitSchedules" ref="scheduleSettingDialog" @RefreshVisitSchedule="refreshVisitSchedule"></schedule-setting-dialog>
 
     <p class="back"><a @click="moveTop"><font-awesome-icon icon="arrow-left" /></a></p>
 
@@ -25,12 +27,14 @@
   import Utils from "../../utils"
   import SelectSchoolDialog from "./school/SelectSchoolDialog"
   import ScheduleCalendar from "./ScheduleCalendar"
+  import ScheduleSettingDialog from "./ScheduleSettingDialog"
 
   export default {
     name: 'schedule-detail',
     components:{
       SelectSchoolDialog,
-      ScheduleCalendar
+      ScheduleCalendar,
+      ScheduleSettingDialog
     },
     data() {
       return {
@@ -41,7 +45,8 @@
         },
         targetYearAndMonth : "",
         schoolWithSchedules:[],
-        privateSchedules:[]
+        privateSchedules:[],
+        visitSchedules:[]
       }
     },
     async created () {
@@ -85,6 +90,17 @@
       openSchoolScheduleDialog(){
         const self = this
         self.$refs.selectSchoolDialog.openDialog()
+      },
+      openScheduleSettingDialog() {
+        const self = this
+        self.$refs.scheduleSettingDialog.openDialog()
+      },
+      refreshVisitSchedule(e, list) {
+        const self = this
+        self.visitSchedules.splice(0, self.visitSchedules.length)
+        self.visitSchedules.push(...list)
+
+        self.$refs.scheduleCalendar.refresh()
       }
     }
   }

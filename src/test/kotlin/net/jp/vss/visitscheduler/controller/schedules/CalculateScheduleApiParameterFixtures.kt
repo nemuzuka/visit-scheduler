@@ -8,7 +8,7 @@ class CalculateScheduleApiParameterFixtures {
         fun create(): CalculateScheduleApiParameter {
             val targetDay = CalculateScheduleApiParameter.TargetDay(1)
             val dayWithPriority = CalculateScheduleApiParameter.DayWithPriority(3, SchoolSchedule.Priority.ABSOLUTELY)
-            val schoolResuestedSchedule = CalculateScheduleApiParameter.SchoolResuestedSchedule(
+            val schoolResuestedSchedule = CalculateScheduleApiParameter.SchoolRequestedSchedule(
                 "SCHOOL-001",
                 28,
                 listOf(dayWithPriority))

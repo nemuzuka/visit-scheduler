@@ -20,7 +20,7 @@ import net.jp.vss.visitscheduler.usecase.schedules.CalculateUseCaseParameter
  *
  * @property targetYearAndMonth 対象年月(yyyy-MM)
  * @property workerExclusionDates 勤務者のスケジュール(除外日を指定)
- * @property schoolResuestedSchedules 学校の希望スケジュールリスト
+ * @property schoolRequestedSchedules 学校の希望スケジュールリスト
  * @property requestVisitRules 訪問ルール
  * @property tryCount 試行回数
  */
@@ -36,9 +36,9 @@ data class CalculateScheduleApiParameter(
     val workerExclusionDates: List<TargetDay>? = null,
 
     @field:NotNull
-    @field:JsonProperty("school_resuested_schedules")
+    @field:JsonProperty("school_requested_schedules")
     @field:Valid
-    val schoolResuestedSchedules: List<SchoolResuestedSchedule>? = null,
+    val schoolRequestedSchedules: List<SchoolRequestedSchedule>? = null,
 
     @field:JsonProperty("request_visit_rules")
     @field:Valid
@@ -68,7 +68,7 @@ data class CalculateScheduleApiParameter(
      * @property lastMonthVisitDay 先月の最終訪問日
      * @property targetAndPriproties 対象日と優先度リスト
      */
-    data class SchoolResuestedSchedule(
+    data class SchoolRequestedSchedule(
         @field:NotNull
         @field:Pattern(regexp = "[a-zA-Z0-9][-a-zA-Z0-9_]{0,127}")
         @field:JsonProperty("school_code")
@@ -135,7 +135,7 @@ data class CalculateScheduleApiParameter(
         val visitRules = if (requestVisitRules == null) VisitRules(7, 14)
         else VisitRules(requestVisitRules.daysToWaitSinceLastVisit!!,
             requestVisitRules.daysToWaitSinceVisitForTargetMonth!!)
-        val schoolSchedules = schoolResuestedSchedules!!.map {
+        val schoolSchedules = schoolRequestedSchedules!!.map {
             val schoolCode = School.SchoolCode(it.schoolCode!!)
             val targetAndPriproties = it.targetAndPriproties!!
             val exclusionDates = targetAndPriproties

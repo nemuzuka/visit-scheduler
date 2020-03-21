@@ -39,7 +39,7 @@ class CalculateScheduleApiParameterTest {
         assertThat(errors).containsExactlyInAnyOrder(
             "targetYearAndMonth",
             "workerExclusionDates",
-            "schoolResuestedSchedules")
+            "schoolRequestedSchedules")
         assertThat(actual).hasSize(3)
     }
 
@@ -66,7 +66,7 @@ class CalculateScheduleApiParameterTest {
         // setup
         val targetDay = CalculateScheduleApiParameter.TargetDay(0)
         val dayWithPriority = CalculateScheduleApiParameter.DayWithPriority(-1, null)
-        val schoolResuestedSchedule = CalculateScheduleApiParameter.SchoolResuestedSchedule(
+        val schoolResuestedSchedule = CalculateScheduleApiParameter.SchoolRequestedSchedule(
             "スクールコード",
             32,
             listOf(dayWithPriority))
@@ -85,10 +85,10 @@ class CalculateScheduleApiParameterTest {
         assertThat(errors).containsExactlyInAnyOrder(
             "targetYearAndMonth must match \"^[0-9]{4}-[0-9]{2}\$\"",
             "workerExclusionDates[0].day must be greater than or equal to 1",
-            "schoolResuestedSchedules[0].schoolCode must match \"[a-zA-Z0-9][-a-zA-Z0-9_]{0,127}\"",
-            "schoolResuestedSchedules[0].lastMonthVisitDay must be less than or equal to 31",
-            "schoolResuestedSchedules[0].targetAndPriproties[0].priority must not be null",
-            "schoolResuestedSchedules[0].targetAndPriproties[0].day must be greater than or equal to 1",
+            "schoolRequestedSchedules[0].schoolCode must match \"[a-zA-Z0-9][-a-zA-Z0-9_]{0,127}\"",
+            "schoolRequestedSchedules[0].lastMonthVisitDay must be less than or equal to 31",
+            "schoolRequestedSchedules[0].targetAndPriproties[0].priority must not be null",
+            "schoolRequestedSchedules[0].targetAndPriproties[0].day must be greater than or equal to 1",
             "requestVisitRules.daysToWaitSinceVisitForTargetMonth must be less than or equal to 31",
             "requestVisitRules.daysToWaitSinceLastVisit must be less than or equal to 31")
     }
@@ -122,12 +122,12 @@ class CalculateScheduleApiParameterTest {
         val dayWithPriority1 = CalculateScheduleApiParameter.DayWithPriority(10, Priority.DONT_COME)
         val dayWithPriority2 = CalculateScheduleApiParameter.DayWithPriority(11, Priority.ABSOLUTELY)
         val dayWithPriority3 = CalculateScheduleApiParameter.DayWithPriority(13, Priority.POSSIBLE)
-        val schoolResuestedSchedule = CalculateScheduleApiParameter.SchoolResuestedSchedule(
+        val schoolResuestedSchedule = CalculateScheduleApiParameter.SchoolRequestedSchedule(
             "SCHOOL-002",
             null,
             listOf(dayWithPriority1, dayWithPriority2, dayWithPriority3))
         val sut = CalculateScheduleApiParameterFixtures.create()
-            .copy(schoolResuestedSchedules = listOf(schoolResuestedSchedule), requestVisitRules = null, tryCount = null)
+            .copy(schoolRequestedSchedules = listOf(schoolResuestedSchedule), requestVisitRules = null, tryCount = null)
 
         // execution
         val actual = sut.toParameter()
