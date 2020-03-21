@@ -8,8 +8,8 @@ import net.jp.vss.visitscheduler.domain.schedules.Schedule
  *
  * @property exclusionDates 訪問除外日
  */
-class WorkerSchedule(
-    private val exclusionDates: List<Schedule.ScheduleDate>
+data class WorkerSchedule(
+    val exclusionDates: List<Schedule.ScheduleDate>
 ) {
     /**
      * 訪問可能日リスト生成.
