@@ -7,14 +7,14 @@
         <th>訪問</th>
         <th>個人</th>
         <th v-for="schoolWithSchedule in schoolWithSchedules" :key="schoolWithSchedule.school.school_code">
-          {{schoolWithSchedule.school.name}}
+          {{schoolWithSchedule.school.name}} <br> <span v-bind:class="[activeClass, isCalculationTarget(schoolWithSchedule)?'is-info' : 'is-black']">{{viewSchoolDetail(schoolWithSchedule)}}</span>
         </th>
       </tr>
       </thead>
       <tbody>
       <tr v-for="targetDay in targetDays" :key="targetDay.day">
         <td>{{targetDay.day}} ({{targetDay.weekdayString}})</td>
-        <td></td>
+        <td><b>{{viewVisitSchedule(targetDay.day)}}</b></td>
         <td>{{viewPrivateSchedule(targetDay.day)}}</td>
         <td v-for="(schoolWithSchedule, index) in schoolWithSchedules" :key="schoolWithSchedule.school.school_code">
           {{viewSchoolSchedule(index, targetDay.day)}}
@@ -31,7 +31,7 @@
 
   export default {
     name: 'schedule-calendar',
-    props: ["privateSchedules", "schoolWithSchedules", "targetYearAndMonth"],
+    props: ["privateSchedules", "schoolWithSchedules", "targetYearAndMonth", "visitSchedules"],
     data() {
       return {
         targetDays:[
@@ -40,6 +40,7 @@
             weekdayString: ''
           }
         ],
+        activeClass:"tag"
       }
     },
     methods: {
@@ -100,6 +101,30 @@
           message += "(" + memo + ")"
         }
         return message
+      },
+      viewSchoolDetail(schoolWithSchedule){
+        let info = "対象外"
+        if(schoolWithSchedule.calculation_target) {
+          info = "対象"
+        }
+        return info
+      },
+      isCalculationTarget(schoolWithSchedule) {
+        return schoolWithSchedule.calculation_target
+      },
+      viewVisitSchedule(day) {
+        const self = this
+        const visitSchedule = self.visitSchedules.find(visitSchedule => visitSchedule.visit_day === day)
+        if(visitSchedule === undefined) {
+          return
+        }
+
+        const schoolCode = visitSchedule.school_code
+        const schoolWithSchedule = self.schoolWithSchedules.find(schoolWithSchedule => schoolWithSchedule.school.school_code === schoolCode)
+        if(schoolWithSchedule === undefined) {
+          return
+        }
+        return schoolWithSchedule.school.name
       }
     },
     watch: {
@@ -110,3 +135,10 @@
     }
   }
 </script>
+
+<style scoped>
+  small.info {
+    font-weight: normal;
+    font-size: small;
+  }
+</style>
