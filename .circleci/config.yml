@@ -1,4 +1,4 @@
-version: 2.1
+version: 2
 jobs:
   build:
     docker:
@@ -15,7 +15,6 @@ jobs:
       - checkout
 
       - setup_remote_docker:
-          docker_layer_caching: true
 
       # Download and cache dependencies
       - restore_cache:

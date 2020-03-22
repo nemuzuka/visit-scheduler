@@ -91,6 +91,30 @@ tasks.withType<org.springframework.boot.gradle.tasks.run.BootRun> {
 
 idea.module.inheritOutputDirs = true
 
+// front 側の build
+tasks.register<Exec>("npmInstall") {
+    workingDir("front")
+    commandLine("npm", "install")
+}
+
+tasks.register<Exec>("buildFront") {
+    workingDir("front")
+    commandLine("npm", "run", "build")
+}
+
+tasks.register<Exec>("lintFront") {
+    workingDir("front")
+    commandLine("npm", "run", "lint")
+}
+
+tasks.register<Exec>("testFront") {
+    workingDir("front")
+    commandLine("npm", "run", "test")
+}
+
+tasks.named("processResources") {
+    dependsOn("buildFront")
+}
 
 // ktlint
 tasks.register<JavaExec>("ktlint") {

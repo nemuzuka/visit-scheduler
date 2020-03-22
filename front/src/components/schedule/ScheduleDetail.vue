@@ -95,7 +95,6 @@
         self.scheduleTitle = Utils.targetYearAndMonthForView(self.targetYearAndMonth) + " スケジュール"
 
       } catch(error) {
-        console.log(error.response.data)
         if(error.response.status === 404) {
           const errorData = error.response.data
           alert(errorData.message)

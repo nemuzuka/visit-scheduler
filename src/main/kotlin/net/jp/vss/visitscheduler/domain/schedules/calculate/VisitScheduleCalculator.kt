@@ -206,8 +206,8 @@ class VisitScheduleCalculator(
 
     private fun setVisitDates(emptyVisitDateCount: Int) {
         schoolSchedules.forEach {
-            val visitSchedule = visitScheduleMap[it.schoolCode]!!
-            if (visitSchedule.getEmptyVisitDateCount() !== emptyVisitDateCount) {
+            val visitSchedule = visitScheduleMap.getValue(it.schoolCode)
+            if (visitSchedule.getEmptyVisitDateCount() != emptyVisitDateCount) {
                 return@forEach
             }
             val findScheduleDate = visitTargetDates.firstOrNull {
