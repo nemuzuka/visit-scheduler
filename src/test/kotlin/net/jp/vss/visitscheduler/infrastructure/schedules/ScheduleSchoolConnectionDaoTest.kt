@@ -1,6 +1,8 @@
 package net.jp.vss.visitscheduler.infrastructure.schedules
 
 import net.jp.vss.visitscheduler.JdbcRepositoryUnitTest
+import net.jp.vss.visitscheduler.infrastructure.schools.SchoolDao
+import net.jp.vss.visitscheduler.infrastructure.schools.SchoolEntityFixtures
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.ThrowableAssert.catchThrowable
 import org.flywaydb.test.annotation.FlywayTest
@@ -20,6 +22,9 @@ class ScheduleSchoolConnectionDaoTest {
 
     @Autowired
     private lateinit var sut: ScheduleSchoolConnectionDao
+
+    @Autowired
+    private lateinit var schoolDao: SchoolDao
 
     @Test
     @FlywayTest(locationsForMigrate = ["db/fixtures_schedule"])
@@ -58,5 +63,26 @@ class ScheduleSchoolConnectionDaoTest {
 
         // verify
         assertThat(actual).isInstanceOf(DataIntegrityViolationException::class.java)
+    }
+
+    @Test
+    @FlywayTest(locationsForMigrate = ["db/fixtures_schedule"])
+    @DisplayName("fk のテスト")
+    fun testFk() {
+        // setup
+        val entity = ScheduleSchoolConnectionEntity(
+            scheduleSchoolConnectionId = "schedule_school_connection_id_001",
+            scheduleId = "schedule_id_001",
+            schoolId = "school_id_002",
+            connectionIndex = 1,
+            calculationTarget = true)
+        sut.create(entity)
+
+        // execution
+        val schoolEntity = SchoolEntityFixtures.create().copy(schoolId = "school_id_002", versionNo = 2)
+        schoolDao.delete(schoolEntity)
+
+        // verify
+        assertThat(sut.findByScheduleCode("schedule_code_001")).isEmpty()
     }
 }

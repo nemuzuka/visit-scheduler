@@ -8,6 +8,7 @@ import net.jp.vss.visitscheduler.domain.schedules.Schedule
 import net.jp.vss.visitscheduler.domain.schedules.ScheduleDetail
 import net.jp.vss.visitscheduler.domain.schedules.ScheduleDetailRepository
 import net.jp.vss.visitscheduler.domain.schedules.SchoolSchedule
+import net.jp.vss.visitscheduler.domain.schedules.VisitSchedules
 import net.jp.vss.visitscheduler.domain.schools.School
 import net.jp.vss.visitscheduler.domain.users.User
 import net.jp.vss.visitscheduler.infrastructure.schools.SchoolDao
@@ -24,7 +25,8 @@ class JdbcScheduleDetailRepository(
     private val privateScheduleRepo: JdbcPrivateScheduleRepository,
     private val schoolScheduleRepository: JdbcSchoolScheduleRepository,
     private val scheduleSchoolConnectionDao: ScheduleSchoolConnectionDao,
-    private val schoolDao: SchoolDao
+    private val schoolDao: SchoolDao,
+    private val visitSchedulesRepo: JdbcVisitSchedulesRepository
 ) : ScheduleDetailRepository {
     override fun getScheduleDetail(scheduleCode: Schedule.ScheduleCode, userCode: User.UserCode): ScheduleDetail {
 
@@ -44,7 +46,10 @@ class JdbcScheduleDetailRepository(
         // school 毎のスケジュールを取得する
         val schoolSchedules = schoolScheduleRepository.getSchoolSchedules(schoolCodes, schedule.targetYearAndMonth)
 
-        return buildScheduleDetail(schedule, privateSchedules, schools, scheduleSchoolConnections, schoolSchedules)
+        // school の訪問スケジュールを取得する
+        val visitSchedules = visitSchedulesRepo.getVisitSchedules(schoolCodes, schedule.targetYearAndMonth)
+
+        return buildScheduleDetail(schedule, privateSchedules, schools, scheduleSchoolConnections, schoolSchedules, visitSchedules)
     }
 
     @VisibleForTesting
@@ -53,7 +58,8 @@ class JdbcScheduleDetailRepository(
         privateSchedules: List<PrivateSchedule>,
         schools: List<SchoolEntity>,
         scheduleSchoolConnections: List<ScheduleSchoolConnectionEntity>,
-        schoolSchedules: List<SchoolSchedule>
+        schoolSchedules: List<SchoolSchedule>,
+        visitSchedules: VisitSchedules
     ): ScheduleDetail {
 
         val schoolScheduleMap = schoolSchedules.groupBy { it.schoolCode }
@@ -74,12 +80,14 @@ class JdbcScheduleDetailRepository(
         if (notTargetSchoolCodes.isEmpty()) {
             // 全ての学校が含まれていた場合、その時点で終了
             return ScheduleDetail(schedule, ScheduleDetail.PrivateSchedules(privateSchedules),
-                ScheduleDetail.SchoolWithSchedules(sortedSchoolWithSchedules))
+                ScheduleDetail.SchoolWithSchedules(sortedSchoolWithSchedules),
+                visitSchedules)
         }
 
         // 未設定の学校を追加する
         val addSchoolWithSchedules = notTargetSchoolCodes.map { schoolWithScheduleMap[it] ?: error("Invalid data") }
         return ScheduleDetail(schedule, ScheduleDetail.PrivateSchedules(privateSchedules),
-            ScheduleDetail.SchoolWithSchedules(sortedSchoolWithSchedules + addSchoolWithSchedules))
+            ScheduleDetail.SchoolWithSchedules(sortedSchoolWithSchedules + addSchoolWithSchedules),
+            visitSchedules)
     }
 }

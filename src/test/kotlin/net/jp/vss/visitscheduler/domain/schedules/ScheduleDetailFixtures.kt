@@ -1,6 +1,8 @@
 package net.jp.vss.visitscheduler.domain.schedules
 
+import net.jp.vss.visitscheduler.domain.schools.School
 import net.jp.vss.visitscheduler.domain.schools.SchoolFixtures
+import java.time.LocalDate
 
 /**
  * ScheduleDetail の Fixture.
@@ -15,7 +17,12 @@ class ScheduleDetailFixtures {
                 false,
                 listOf(SchoolScheduleFixtures.create()))
             return ScheduleDetail(schedule, privateSchedules,
-                ScheduleDetail.SchoolWithSchedules(listOf(schoolWithSchedule)))
+                ScheduleDetail.SchoolWithSchedules(listOf(schoolWithSchedule)),
+                VisitSchedules(listOf(
+                    VisitSchedules.VisitSchedule(
+                        Schedule.ScheduleDate(LocalDate.of(2020,1,19)),
+                        School.SchoolCode("SCHOOL-002"))))
+            )
         }
     }
 }

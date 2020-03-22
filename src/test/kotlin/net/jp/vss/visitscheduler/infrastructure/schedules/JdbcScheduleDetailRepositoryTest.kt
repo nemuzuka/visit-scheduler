@@ -9,6 +9,7 @@ import net.jp.vss.visitscheduler.domain.schedules.Schedule
 import net.jp.vss.visitscheduler.domain.schedules.ScheduleDetail
 import net.jp.vss.visitscheduler.domain.schedules.ScheduleFixtures
 import net.jp.vss.visitscheduler.domain.schedules.SchoolScheduleFixtures
+import net.jp.vss.visitscheduler.domain.schedules.VisitSchedules
 import net.jp.vss.visitscheduler.domain.schools.School
 import net.jp.vss.visitscheduler.domain.users.User
 import net.jp.vss.visitscheduler.infrastructure.schools.SchoolEntityFixtures
@@ -60,10 +61,11 @@ class JdbcScheduleDetailRepositoryTest {
             .copy(schoolCode = School.SchoolCode(school1.schoolCode),
                 targetDate = Schedule.ScheduleDate(LocalDate.parse("2020-01-24")))
         val schoolSchedules = listOf(school1Schedule1, school1Schedule2, school1Schedule3)
+        val visitSchedules = VisitSchedules(listOf(VisitSchedules.VisitSchedule(Schedule.ScheduleDate(LocalDate.of(2019,1,28)), School.SchoolCode("SCHOOL-01"))))
 
         // execution
         val actual = sut.buildScheduleDetail(schedule, privateSchedules,
-            schools, scheduleSchoolConnections, schoolSchedules)
+            schools, scheduleSchoolConnections, schoolSchedules, visitSchedules)
 
         // verify
         val schoolWithSchedules = listOf(
@@ -71,7 +73,7 @@ class JdbcScheduleDetailRepositoryTest {
                 listOf(school1Schedule1, school1Schedule2, school1Schedule3)),
                 ScheduleDetail.SchoolWithSchedule(school2.toSchool(), true, null))
         val expected = ScheduleDetail(schedule, ScheduleDetail.PrivateSchedules(privateSchedules),
-            ScheduleDetail.SchoolWithSchedules(schoolWithSchedules))
+            ScheduleDetail.SchoolWithSchedules(schoolWithSchedules), visitSchedules)
         assertThat(actual).isEqualTo(expected)
     }
 
@@ -96,17 +98,18 @@ class JdbcScheduleDetailRepositoryTest {
             .copy(schoolCode = School.SchoolCode(school2.schoolCode),
                 targetDate = Schedule.ScheduleDate(LocalDate.parse("2020-01-01")))
         val schoolSchedules = listOf(school2Schedule1)
+        val visitSchedules = VisitSchedules(listOf(VisitSchedules.VisitSchedule(Schedule.ScheduleDate(LocalDate.of(2019,1,28)), School.SchoolCode("SCHOOL-01"))))
 
         // execution
         val actual = sut.buildScheduleDetail(schedule, privateSchedules, schools,
-            scheduleSchoolConnections, schoolSchedules)
+            scheduleSchoolConnections, schoolSchedules, visitSchedules)
 
         // verify
         val schoolWithSchedules = listOf(
             ScheduleDetail.SchoolWithSchedule(school2.toSchool(), true, listOf(school2Schedule1)),
             ScheduleDetail.SchoolWithSchedule(school1.toSchool(), false, null))
         val expected = ScheduleDetail(schedule, ScheduleDetail.PrivateSchedules(privateSchedules),
-            ScheduleDetail.SchoolWithSchedules(schoolWithSchedules))
+            ScheduleDetail.SchoolWithSchedules(schoolWithSchedules), visitSchedules)
         assertThat(actual).isEqualTo(expected)
     }
 
