@@ -12,7 +12,28 @@
       <button class="button" @click="openScheduleSettingDialog">スケジュール計算</button>
     </div>
 
-    <schedule-calendar :targetYearAndMonth="targetYearAndMonth" :privateSchedules="privateSchedules" :schoolWithSchedules="schoolWithSchedules" :visitSchedules="visitSchedules" ref="scheduleCalendar"></schedule-calendar>
+    <div class="box">
+
+      <article class="message is-danger" v-if="globalErrorMessage !== ''">
+        <div class="message-body">
+          {{globalErrorMessage}}
+        </div>
+      </article>
+
+      <schedule-calendar :targetYearAndMonth="targetYearAndMonth" :privateSchedules="privateSchedules" :schoolWithSchedules="schoolWithSchedules" :visitSchedules="visitSchedules" ref="scheduleCalendar"></schedule-calendar>
+
+      <div class="field">
+        <p class="control has-text-right">
+          <button class="button is-info" @click="saveVisitSchedule">
+              <span class="icon is-small">
+                <font-awesome-icon icon="save" />
+              </span>
+            <span>訪問スケジュールを登録する</span>
+          </button>
+        </p>
+      </div>
+
+    </div>
 
     <select-school-dialog :targetYearAndMonth="targetYearAndMonth" :schoolWithSchedules="schoolWithSchedules" ref="selectSchoolDialog"></select-school-dialog>
     <schedule-setting-dialog :targetYearAndMonth="targetYearAndMonth" :schoolWithSchedules="schoolWithSchedules" :privateSchedules="privateSchedules" :visitSchedules="visitSchedules" ref="scheduleSettingDialog" @RefreshVisitSchedule="refreshVisitSchedule"></schedule-setting-dialog>
@@ -38,6 +59,7 @@
     },
     data() {
       return {
+        globalErrorMessage: "",
         scheduleTitle: "",
         scheduleCode: "",
         scheduleDetail:{
@@ -65,6 +87,9 @@
 
         self.privateSchedules.splice(0, self.privateSchedules.length)
         self.privateSchedules.push(...scheduleDetail.private_schedules)
+
+        self.visitSchedules.splice(0, self.visitSchedules.length)
+        self.visitSchedules.push(...scheduleDetail.visit_schedules)
 
         self.targetYearAndMonth = scheduleDetail.target_year_and_month
         self.scheduleTitle = Utils.targetYearAndMonthForView(self.targetYearAndMonth) + " スケジュール"
@@ -101,6 +126,38 @@
         self.visitSchedules.push(...list)
 
         self.$refs.scheduleCalendar.refresh()
+      },
+      saveVisitSchedule() {
+        const self = this
+        const parameter = {
+          target_year_and_month: self.targetYearAndMonth,
+          visit_day_and_school_codes: self.visitSchedules.map(visitSchedule=>{
+            return {
+              visit_day: visitSchedule.visit_day,
+              school_code: visitSchedule.school_code
+            }
+          })
+        }
+
+        const callback = async () => {
+          try {
+            await self.$http.post('/api/visit-schedules', parameter)
+            self.$toasted.show('処理が終了しました')
+            setTimeout(() => {
+              self.$router.push('/detail-schedule/' + localStorage.sceduleCode)
+            }, 1500)
+          } catch(error) {
+            self.$toasted.show('入力内容にエラーがあります')
+
+            if(error.response.data) {
+              const errorData = error.response.data
+              self.globalErrorMessage = errorData.message
+            }
+          }
+        }
+
+        self.globalErrorMessage = ""
+        callback()
       }
     }
   }

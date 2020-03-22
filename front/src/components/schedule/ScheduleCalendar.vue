@@ -2,7 +2,7 @@
   <div class="table-container">
     <table class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth">
       <thead>
-      <tr>
+      <tr bgcolor="lightgray">
         <th></th>
         <th>訪問</th>
         <th>個人</th>
