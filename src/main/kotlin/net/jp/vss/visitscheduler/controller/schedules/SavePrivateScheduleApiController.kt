@@ -50,7 +50,7 @@ class SavePrivateScheduleApiController(
             val principal = authentication.principal
             val user = getUserUseCase.getUser(authentication.authorizedClientRegistrationId, principal.name)
 
-            val result = savePrivateScheduleUseCase.savePrivateSchedule(
+            savePrivateScheduleUseCase.savePrivateSchedule(
                 parameter.toParameter(user!!.userCode))
             return ResponseEntity.ok("")
         } catch (e: DuplicateException) {

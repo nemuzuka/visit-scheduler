@@ -49,7 +49,8 @@ class JdbcScheduleDetailRepository(
         // school の訪問スケジュールを取得する
         val visitSchedules = visitSchedulesRepo.getVisitSchedules(schoolCodes, schedule.targetYearAndMonth)
 
-        return buildScheduleDetail(schedule, privateSchedules, schools, scheduleSchoolConnections, schoolSchedules, visitSchedules)
+        return buildScheduleDetail(schedule, privateSchedules, schools,
+            scheduleSchoolConnections, schoolSchedules, visitSchedules)
     }
 
     @VisibleForTesting

@@ -61,7 +61,10 @@ class JdbcScheduleDetailRepositoryTest {
             .copy(schoolCode = School.SchoolCode(school1.schoolCode),
                 targetDate = Schedule.ScheduleDate(LocalDate.parse("2020-01-24")))
         val schoolSchedules = listOf(school1Schedule1, school1Schedule2, school1Schedule3)
-        val visitSchedules = VisitSchedules(listOf(VisitSchedules.VisitSchedule(Schedule.ScheduleDate(LocalDate.of(2019,1,28)), School.SchoolCode("SCHOOL-01"))))
+        val visitSchedules = VisitSchedules(
+            listOf(
+                VisitSchedules.VisitSchedule(Schedule.ScheduleDate(
+                    LocalDate.of(2019, 1, 28)), School.SchoolCode("SCHOOL-01"))))
 
         // execution
         val actual = sut.buildScheduleDetail(schedule, privateSchedules,
@@ -98,7 +101,11 @@ class JdbcScheduleDetailRepositoryTest {
             .copy(schoolCode = School.SchoolCode(school2.schoolCode),
                 targetDate = Schedule.ScheduleDate(LocalDate.parse("2020-01-01")))
         val schoolSchedules = listOf(school2Schedule1)
-        val visitSchedules = VisitSchedules(listOf(VisitSchedules.VisitSchedule(Schedule.ScheduleDate(LocalDate.of(2019,1,28)), School.SchoolCode("SCHOOL-01"))))
+        val visitSchedules =
+            VisitSchedules(
+                listOf(
+                    VisitSchedules.VisitSchedule(Schedule.ScheduleDate(
+                        LocalDate.of(2019, 1, 28)), School.SchoolCode("SCHOOL-01"))))
 
         // execution
         val actual = sut.buildScheduleDetail(schedule, privateSchedules, schools,

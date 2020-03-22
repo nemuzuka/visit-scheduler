@@ -35,7 +35,7 @@ class JdbcSchoolScheduleRepository(
         val from = yearMonth.atDay(1)
         val to = yearMonth.atDay(from.lengthOfMonth())
 
-        val result = schoolScheduleDao.delete(schoolCodeValue, from, to) // 1度削除
+        schoolScheduleDao.delete(schoolCodeValue, from, to) // 1度削除
 
         schoolSchedules.forEach { schoolScheduleDao.create(SchoolScheduleEntity.fromSchoolSchedule(it, schoolId)) }
     }

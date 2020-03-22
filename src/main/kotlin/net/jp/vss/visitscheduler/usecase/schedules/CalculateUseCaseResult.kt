@@ -26,7 +26,7 @@ data class CalculateUseCaseResult(
             return CalculateUseCaseResult(results)
         }
 
-        fun of(visitSchedules: VisitSchedules):CalculateUseCaseResult {
+        fun of(visitSchedules: VisitSchedules): CalculateUseCaseResult {
             val results = visitSchedules.visitSchedules.map {
                 val schoolCode = it.schoolCode.value
                 val visitDay = it.visitDate.date.dayOfMonth
