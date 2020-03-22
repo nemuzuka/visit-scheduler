@@ -151,7 +151,7 @@ class ScheduleDaoTest {
         val user1Schedule2 = createSchedule(user1ScheduleCode2, user1.userId, LocalDate.parse("2020-03-01"))
         val user2 = createUser(userCode = "USER-0002")
         val user2ScheduleCode1 = "SCHE-0003"
-        val user2Schedule1 = createSchedule(user2ScheduleCode1, user2.userId, LocalDate.parse("2020-02-01"))
+        createSchedule(user2ScheduleCode1, user2.userId, LocalDate.parse("2020-02-01"))
 
         // execution
         val actual = sut.findAll(user1.userCode)
