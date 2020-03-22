@@ -62,7 +62,7 @@ jobs:
       - run:
           name: Push application Docker image
           command: |
-            if [[ ${CIRCLE_BRANCH} =~ feature ]]; then
+            if [[ ${CIRCLE_BRANCH} =~ feature || ${CIRCLE_BRANCH} =~ dependabot ]]; then
               echo "No push branch: ${CIRCLE_BRANCH}"
               exit 0
             else
