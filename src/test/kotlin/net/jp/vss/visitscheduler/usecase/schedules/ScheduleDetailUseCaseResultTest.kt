@@ -81,6 +81,12 @@ class ScheduleDetailUseCaseResultTest {
             |               }
             |           ]
             |       }
+            |   ],
+            |   "visit_schedules": [
+            |       {
+            |           "visit_day": ${sut.calculateUseCaseResult.visitSchedules[0].day},
+            |           "school_code": "${sut.calculateUseCaseResult.visitSchedules[0].schoolCode}"
+            |       }
             |   ]
             |}
         """.trimMargin()

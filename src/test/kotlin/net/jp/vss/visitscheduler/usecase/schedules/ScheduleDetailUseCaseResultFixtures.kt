@@ -17,7 +17,8 @@ class ScheduleDetailUseCaseResultFixtures {
             return ScheduleDetailUseCaseResult(
                 ScheduleUseCaseResultFixtures.create(),
                 listOf(PrivateScheduleUseCaseResult.of(PrivateScheduleFixtures.create())),
-                ScheduleDetailUseCaseResult.SchoolWithSchedulesUseCaseResult(listOf(schoolWithScheduleUseCaseResult)))
+                ScheduleDetailUseCaseResult.SchoolWithSchedulesUseCaseResult(listOf(schoolWithScheduleUseCaseResult)),
+                CalculateUseCaseResultFixtures.create())
         }
     }
 }

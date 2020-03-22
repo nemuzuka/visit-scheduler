@@ -21,7 +21,10 @@ data class ScheduleDetailUseCaseResult(
     val privateScheduleUseCaseResults: List<PrivateScheduleUseCaseResult>,
 
     @field:JsonUnwrapped
-    val schoolWithSchedules: SchoolWithSchedulesUseCaseResult
+    val schoolWithSchedules: SchoolWithSchedulesUseCaseResult,
+
+    @field:JsonUnwrapped
+    val calculateUseCaseResult: CalculateUseCaseResult
 ) {
 
     companion object {
@@ -31,8 +34,9 @@ data class ScheduleDetailUseCaseResult(
                 PrivateScheduleUseCaseResult.of(it)
             }.toList()
             val schoolWithSchedules = SchoolWithSchedulesUseCaseResult.of(scheduleDetail.schoolWithSchedules)
+            val calculateUseCaseResult = CalculateUseCaseResult.of(scheduleDetail.visitSchedules)
             return ScheduleDetailUseCaseResult(scheduleUseCaseResult,
-                privateScheduleUseCaseResults, schoolWithSchedules)
+                privateScheduleUseCaseResults, schoolWithSchedules, calculateUseCaseResult)
         }
     }
 

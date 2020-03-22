@@ -87,7 +87,7 @@ class SaveVisitScheduleApiParameterTest {
 
         // verify
         val visitDayAndSchoolCode = SaveVisitScheduleUseCaseParameter.VisitDayAndSchoolCode(
-            School.SchoolCode("SCHOOL_001"), 21)
+            School.SchoolCode("SCHOOL_0001"), 21)
         val expected = SaveVisitScheduleUseCaseParameter("2020-03", User.UserCode("USER-001"),
             listOf(visitDayAndSchoolCode))
         assertThat(actual).isEqualTo(expected)

@@ -8,11 +8,13 @@ import net.jp.vss.visitscheduler.domain.schools.School
  * @property schedule スケジュール
  * @property privateSchedules 当該月に紐づく個人スケジュール
  * @property schoolWithSchedules 当該月に紐づく学校のスケジュール
+ * @property visitSchedules 学校訪問日
  */
 data class ScheduleDetail(
     val schedule: Schedule,
     val privateSchedules: PrivateSchedules,
-    val schoolWithSchedules: SchoolWithSchedules
+    val schoolWithSchedules: SchoolWithSchedules,
+    val visitSchedules: VisitSchedules
 ) {
 
     /**

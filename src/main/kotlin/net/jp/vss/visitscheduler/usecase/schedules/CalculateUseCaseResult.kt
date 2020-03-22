@@ -1,6 +1,7 @@
 package net.jp.vss.visitscheduler.usecase.schedules
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import net.jp.vss.visitscheduler.domain.schedules.VisitSchedules
 import net.jp.vss.visitscheduler.domain.schedules.calculate.ScheduleResult
 
 /**
@@ -21,6 +22,15 @@ data class CalculateUseCaseResult(
                 it.visitDates.map {
                     visitSchedule -> VisitDayAndSchool(visitSchedule.date.dayOfMonth, schoolCode)
                 }.toList()
+            }.toList()
+            return CalculateUseCaseResult(results)
+        }
+
+        fun of(visitSchedules: VisitSchedules):CalculateUseCaseResult {
+            val results = visitSchedules.visitSchedules.map {
+                val schoolCode = it.schoolCode.value
+                val visitDay = it.visitDate.date.dayOfMonth
+                VisitDayAndSchool(visitDay, schoolCode)
             }.toList()
             return CalculateUseCaseResult(results)
         }
