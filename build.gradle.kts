@@ -112,8 +112,10 @@ tasks.register<Exec>("testFront") {
     commandLine("npm", "run", "test")
 }
 
-tasks.named("processResources") {
-    dependsOn("buildFront")
+if(System.getenv("CI") != null) {
+    tasks.named("processResources") {
+        dependsOn("buildFront")
+    }
 }
 
 // ktlint
