@@ -101,7 +101,7 @@ class ListScheduleApiIntegrationTest {
         createSchool("school_0001")
         val request = CreateScheduleApiParameterFixtures.create().copy(
             schoolCodeAndCalculationTargets = listOf(
-                CreateScheduleApiParameter.SchoolCodeAndCalculationTarget("school_0001", true)))
+                SchoolCodeAndCalculationTarget("school_0001", true)))
         scheduleIntegrationHelper.createSchedule(mockMvc, request)
 
         // execution

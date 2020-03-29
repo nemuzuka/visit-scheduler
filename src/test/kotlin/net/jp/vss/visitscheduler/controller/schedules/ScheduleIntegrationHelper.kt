@@ -23,7 +23,8 @@ class ScheduleIntegrationHelper {
         const val CREATE_SCHEDULE_PATH = "/api/schedules"
         const val GET_SCHEDULE_PATH = "/api/schedules/{schedule_code}"
         const val LIST_SCHEDULE_PATH = "/api/schedules"
-        const val UPDATE_SCHEDULE_PATH = "/api/schedules/{schedule_code}"
+        const val UPDATE_SCHOOL_CODE_AND_CALCULATION_TARGET_PATH =
+            "/api/schedules/{schedule_code}/_update-school-code-and-calculation-target"
     }
 
     /**

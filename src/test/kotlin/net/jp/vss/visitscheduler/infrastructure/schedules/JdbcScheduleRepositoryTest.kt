@@ -15,6 +15,7 @@ import org.flywaydb.test.annotation.FlywayTest
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.seasar.doma.jdbc.SelectOptions
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.context.junit.jupiter.SpringExtension
 
@@ -30,6 +31,9 @@ class JdbcScheduleRepositoryTest {
 
     @Autowired
     private lateinit var scheduleSchoolConnectionDao: ScheduleSchoolConnectionDao
+
+    @Autowired
+    private lateinit var scheduleDao: ScheduleDao
 
     @Test
     @FlywayTest(locationsForMigrate = ["db/fixtures_schedule"])
@@ -209,5 +213,135 @@ class JdbcScheduleRepositoryTest {
                 Schedule::scheduleDetail)
             .returns(ResourceAttributes("create_user_002", 1646732800002, "last_update_user_002", 1746732800002, 2),
                 Schedule::resourceAttributes)
+    }
+
+    @Test
+    @FlywayTest(locationsForMigrate = ["db/fixtures_schedule"])
+    @DisplayName("updateSchoolCodeAndCalculationTargets のテスト.Insert のみ")
+    fun testUpdateSchoolCodeAndCalculationTargets_InsertOnly() {
+        // setup
+        val scheduleCode = Schedule.ScheduleCode("schedule_code_001")
+        val userCode = User.UserCode("user_code_001")
+        val schoolCodeAndCalculationTarget1 = Schedule.SchoolCodeAndCalculationTarget(
+            School.SchoolCode("school_code_002"), false)
+        val schoolCodeAndCalculationTarget2 = Schedule.SchoolCodeAndCalculationTarget(
+            School.SchoolCode("school_code_003"), true)
+        val schoolCodeAndCalculationTargets = Schedule.SchoolCodeAndCalculationTargets(
+            listOf(schoolCodeAndCalculationTarget1, schoolCodeAndCalculationTarget2))
+
+        // execution
+        sut.updateSchoolCodeAndCalculationTargets(scheduleCode, userCode, schoolCodeAndCalculationTargets)
+
+        // verify
+        assertThat(scheduleDao.findByScheduleCodeAndUserCode(
+            scheduleCode.value, userCode.value, SelectOptions.get())!!.versionNo)
+            .isEqualTo(3)
+
+        val scheduleSchoolConnections = scheduleSchoolConnectionDao.findByScheduleCode(scheduleCode.value)
+        assertThat(scheduleSchoolConnections).hasSize(2)
+        assertThat(scheduleSchoolConnections[0])
+            .returns("school_id_002", ScheduleSchoolConnectionEntity::schoolId)
+            .returns(false, ScheduleSchoolConnectionEntity::calculationTarget)
+            .returns(0, ScheduleSchoolConnectionEntity::connectionIndex)
+        assertThat(scheduleSchoolConnections[1])
+            .returns("school_id_003", ScheduleSchoolConnectionEntity::schoolId)
+            .returns(true, ScheduleSchoolConnectionEntity::calculationTarget)
+            .returns(1, ScheduleSchoolConnectionEntity::connectionIndex)
+    }
+
+    @Test
+    @FlywayTest(locationsForMigrate = ["db/fixtures_schedule"])
+    @DisplayName("updateSchoolCodeAndCalculationTargets のテスト.Update のみ")
+    fun testUpdateSchoolCodeAndCalculationTargets_UpdateOnly() {
+        // setup
+        val schedule = Schedule(scheduleCode = Schedule.ScheduleCode("SCHEDULE_0001"),
+            userCode = User.UserCode("user_code_001"),
+            targetYearAndMonth = Schedule.TargetYearAndMonth("2019-02"),
+            scheduleDetail = Schedule.ScheduleDetail(attributes = null),
+            resourceAttributes = ResourceAttributesFixtures.create())
+        val scheduleCode = schedule.scheduleCode
+        val userCode = schedule.userCode
+
+        val createTarget1 = Schedule.SchoolCodeAndCalculationTarget(
+            schoolCode = School.SchoolCode("school_code_003"),
+            calculationTarget = false)
+        val createTarget2 = Schedule.SchoolCodeAndCalculationTarget(
+            schoolCode = School.SchoolCode("school_code_002"),
+            calculationTarget = false)
+        sut.create(schedule,
+            Schedule.SchoolCodeAndCalculationTargets(listOf(createTarget1, createTarget2)))
+
+        val schoolCodeAndCalculationTarget1 = Schedule.SchoolCodeAndCalculationTarget(
+            schoolCode = School.SchoolCode("school_code_002"),
+            calculationTarget = true)
+        val schoolCodeAndCalculationTarget2 = Schedule.SchoolCodeAndCalculationTarget(
+            schoolCode = School.SchoolCode("school_code_003"),
+            calculationTarget = true)
+        val schoolCodeAndCalculationTargets = Schedule.SchoolCodeAndCalculationTargets(
+            listOf(schoolCodeAndCalculationTarget1, schoolCodeAndCalculationTarget2))
+
+        // execution
+        sut.updateSchoolCodeAndCalculationTargets(scheduleCode, userCode, schoolCodeAndCalculationTargets)
+
+        // verify
+        assertThat(scheduleDao.findByScheduleCodeAndUserCode(
+            scheduleCode.value, userCode.value, SelectOptions.get())!!.versionNo)
+            .isEqualTo(4)
+
+        val scheduleSchoolConnections = scheduleSchoolConnectionDao.findByScheduleCode(scheduleCode.value)
+        assertThat(scheduleSchoolConnections).hasSize(2)
+        assertThat(scheduleSchoolConnections[0])
+            .returns("school_id_002", ScheduleSchoolConnectionEntity::schoolId)
+            .returns(true, ScheduleSchoolConnectionEntity::calculationTarget)
+            .returns(0, ScheduleSchoolConnectionEntity::connectionIndex)
+        assertThat(scheduleSchoolConnections[1])
+            .returns("school_id_003", ScheduleSchoolConnectionEntity::schoolId)
+            .returns(true, ScheduleSchoolConnectionEntity::calculationTarget)
+            .returns(1, ScheduleSchoolConnectionEntity::connectionIndex)
+    }
+
+    @Test
+    @FlywayTest(locationsForMigrate = ["db/fixtures_schedule"])
+    @DisplayName("updateSchoolCodeAndCalculationTargets のテスト.Deleteも含む のみ")
+    fun testUpdateSchoolCodeAndCalculationTargets_IncludeDelete() {
+        // setup
+        val schedule = Schedule(scheduleCode = Schedule.ScheduleCode("SCHEDULE_0001"),
+            userCode = User.UserCode("user_code_001"),
+            targetYearAndMonth = Schedule.TargetYearAndMonth("2019-02"),
+            scheduleDetail = Schedule.ScheduleDetail(attributes = null),
+            resourceAttributes = ResourceAttributesFixtures.create())
+        val scheduleCode = schedule.scheduleCode
+        val userCode = schedule.userCode
+
+        val createTarget1 = Schedule.SchoolCodeAndCalculationTarget(
+            schoolCode = School.SchoolCode("school_code_003"),
+            calculationTarget = false)
+        val createTarget2 = Schedule.SchoolCodeAndCalculationTarget(
+            schoolCode = School.SchoolCode("school_code_002"),
+            calculationTarget = false)
+        sut.create(schedule,
+            Schedule.SchoolCodeAndCalculationTargets(listOf(createTarget1, createTarget2)))
+
+        val schoolCodeAndCalculationTarget = Schedule.SchoolCodeAndCalculationTarget(
+            schoolCode = School.SchoolCode("school_code_002"),
+            calculationTarget = true)
+        // school_code_002 だけ
+        val schoolCodeAndCalculationTargets =
+            Schedule.SchoolCodeAndCalculationTargets(listOf(schoolCodeAndCalculationTarget))
+
+        // execution
+        sut.updateSchoolCodeAndCalculationTargets(scheduleCode, userCode, schoolCodeAndCalculationTargets)
+
+        // verify
+        assertThat(scheduleDao.findByScheduleCodeAndUserCode(
+            scheduleCode.value, userCode.value, SelectOptions.get())!!.versionNo)
+            .isEqualTo(4)
+
+        val scheduleSchoolConnections = scheduleSchoolConnectionDao.findByScheduleCode(scheduleCode.value)
+        assertThat(scheduleSchoolConnections).hasSize(1) // リクエストに存在しない物は削除
+        assertThat(scheduleSchoolConnections[0])
+            .returns("school_id_002", ScheduleSchoolConnectionEntity::schoolId)
+            .returns(true, ScheduleSchoolConnectionEntity::calculationTarget)
+            .returns(0, ScheduleSchoolConnectionEntity::connectionIndex)
     }
 }

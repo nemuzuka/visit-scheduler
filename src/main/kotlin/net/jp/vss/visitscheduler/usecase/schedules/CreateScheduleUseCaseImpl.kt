@@ -22,6 +22,8 @@ class CreateScheduleUseCaseImpl(
             targetDateString = parameter.targetDateString,
             attributeJsonString = parameter.attributes,
             createUserCode = parameter.createUserCode)
-        return ScheduleUseCaseResult.of(scheduleRepo.create(schedule, parameter.toSchoolCodeAndCalculationTargets()))
+        return ScheduleUseCaseResult.of(scheduleRepo.create(schedule,
+            SchoolCodeAndCalculationTarget.toSchoolCodeAndCalculationTargets(
+                parameter.schoolCodeAndCalculationTargets)))
     }
 }

@@ -54,7 +54,7 @@ class JdbcScheduleRepository(
         schoolCodeAndCalculationTargets: List<Schedule.SchoolCodeAndCalculationTarget>,
         userCode: User.UserCode
     ) {
-        val schoolCodeValues = schoolCodeAndCalculationTargets.stream().map { it.schoolCode.value }.toList()
+        val schoolCodeValues = schoolCodeAndCalculationTargets.map { it.schoolCode.value }.toList()
         val schoolCodeIdMap = schoolDao.findBySchoolCodesAndUserCode(schoolCodeValues, userCode.value)
             .associateBy({ it.schoolCode }, { it.schoolId })
         schoolCodeAndCalculationTargets.forEachIndexed { index, schoolCodeAndCalculationTarget ->
@@ -68,6 +68,51 @@ class JdbcScheduleRepository(
                     index, calculationTarget)
             scheduleSchoolConnectionDao.create(scheduleSchoolConnection)
         }
+    }
+
+    override fun updateSchoolCodeAndCalculationTargets(
+        scheduleCode: Schedule.ScheduleCode,
+        userCode: User.UserCode,
+        schoolCodeAndCalculationTargets: Schedule.SchoolCodeAndCalculationTargets
+    ) {
+
+        val schedule = scheduleDao.findByScheduleCodeAndUserCode(scheduleCode.value,
+            userCode.value, SelectOptions.get().forUpdate())
+            ?: throw NotFoundException("Schedule(${scheduleCode.value}) は存在しません")
+        val scheduleId = schedule.scheduleId
+        val schoolCodeIdMap = schoolDao.findAll(userCode.value)
+            .associateBy({ School.SchoolCode(it.schoolCode) }, { School.SchoolId(it.schoolId) })
+
+        val scheduleSchoolConnectionMap = scheduleSchoolConnectionDao.findByScheduleCode(schedule.scheduleCode)
+            .map { School.SchoolId(it.schoolId) to it }.toMap()
+
+        val updatedSchoolIds = mutableSetOf<School.SchoolId>()
+
+        schoolCodeAndCalculationTargets.schoolCodeAndCalculationTargets.forEachIndexed { index, target ->
+            val schoolId = schoolCodeIdMap[target.schoolCode] ?: error("Invalid ${target.schoolCode}")
+            val updateTarget = scheduleSchoolConnectionMap[schoolId]
+            if (updateTarget == null) {
+                // insert
+                val scheduleSchoolConnection =
+                    ScheduleSchoolConnectionEntity.buildForCreate(scheduleId, schoolId, index, target.calculationTarget)
+                scheduleSchoolConnectionDao.create(scheduleSchoolConnection)
+            } else {
+                // update
+                val updateEntity =
+                    updateTarget.copy(connectionIndex = index, calculationTarget = target.calculationTarget)
+                scheduleSchoolConnectionDao.update(updateEntity)
+
+                updatedSchoolIds.add(schoolId)
+            }
+        }
+
+        // 登録済みだったが処理対象外だった ScheduleSchoolConnection は削除
+        val deleteSchoolIds = scheduleSchoolConnectionMap.keys.subtract(updatedSchoolIds)
+        deleteSchoolIds.forEach { deleteSchoolId ->
+            scheduleSchoolConnectionMap[deleteSchoolId]?.let { scheduleSchoolConnectionDao.delete(it) }
+        }
+
+        scheduleDao.update(schedule)
     }
 
     override fun getSchedule(scheduleCode: Schedule.ScheduleCode, userCode: User.UserCode): Schedule =
