@@ -11,7 +11,7 @@ class CreateScheduleApiParameterFixtures {
                 targetYearAndMonth = "2019-12",
                 attributes = """{"hoge":"hage"}""",
                 schoolCodeAndCalculationTargets = listOf(
-                    CreateScheduleApiParameter.SchoolCodeAndCalculationTarget("SCHOOL_001", true),
-                    CreateScheduleApiParameter.SchoolCodeAndCalculationTarget("SCHOOL_002", false)))
+                    SchoolCodeAndCalculationTarget("SCHOOL_001", true),
+                    SchoolCodeAndCalculationTarget("SCHOOL_002", false)))
     }
 }

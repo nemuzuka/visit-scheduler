@@ -24,6 +24,25 @@ interface ScheduleRepository {
     ): Schedule
 
     /**
+     * スケジュールに関連する school_code と 計算対象の組み合わせ更新.
+     *
+     * <p>
+     * - schedule の version が増加します
+     * - 以前指定した school_code を含まない場合、スケジュールとの関連を削除します。
+     * </p>
+     * @param scheduleCode 対象 schedule_code
+     * @param userCode 対象 user_code
+     * @param schoolCodeAndCalculationTargets スケジュールに関連する school_code と 計算対象の組み合わせリスト
+     * @throws IllegalStateException 指定した学校コードがユーザに紐づかない
+     * @throws NotFoundException 該当 Schedule が存在しない
+     */
+    fun updateSchoolCodeAndCalculationTargets(
+        scheduleCode: Schedule.ScheduleCode,
+        userCode: User.UserCode,
+        schoolCodeAndCalculationTargets: Schedule.SchoolCodeAndCalculationTargets
+    )
+
+    /**
      * 取得.
      *
      * @param scheduleCode スケジュールコード

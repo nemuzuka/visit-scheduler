@@ -3,6 +3,7 @@ package net.jp.vss.visitscheduler.infrastructure.schedules
 import org.seasar.doma.Dao
 import org.seasar.doma.Insert
 import org.seasar.doma.Select
+import org.seasar.doma.Update
 import org.seasar.doma.boot.ConfigAutowireable
 import org.seasar.doma.experimental.Sql
 import org.seasar.doma.jdbc.Result
@@ -25,6 +26,15 @@ interface ScheduleDao {
      */
     @Insert
     fun create(entity: ScheduleEntity): Result<ScheduleEntity>
+
+    /**
+     * 更新.
+     *
+     * @param entity 更新Entity
+     * @return 結果
+     */
+    @Update
+    fun update(entity: ScheduleEntity): Result<ScheduleEntity>
 
     /**
      * schedule_code と user_code による取得.

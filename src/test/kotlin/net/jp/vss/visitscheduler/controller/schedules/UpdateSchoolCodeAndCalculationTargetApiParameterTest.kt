@@ -2,18 +2,20 @@ package net.jp.vss.visitscheduler.controller.schedules
 
 import com.google.common.base.Strings.repeat
 import javax.validation.Validation
-import net.jp.vss.visitscheduler.usecase.schedules.CreateScheduleUseCaseParameter
+import net.jp.vss.visitscheduler.domain.schedules.Schedule
+import net.jp.vss.visitscheduler.domain.users.User
+import net.jp.vss.visitscheduler.usecase.schedules.UpdateSchoolCodeAndCalculationTargetUseCaseParameter
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.slf4j.LoggerFactory
 
 /**
- * CreateScheduleApiParameter のテスト.
+ * UpdateSchoolCodeAndCalculationTargetApiParameter のテスト.
  */
-class CreateScheduleApiParameterTest {
+class UpdateSchoolCodeAndCalculationTargetApiParameterTest {
 
     companion object {
-        private val log = LoggerFactory.getLogger(CreateScheduleApiParameterTest::class.java)
+        private val log = LoggerFactory.getLogger(UpdateSchoolCodeAndCalculationTargetApiParameterTest::class.java)
     }
 
     private val validator = Validation.buildDefaultValidatorFactory().validator
@@ -24,7 +26,7 @@ class CreateScheduleApiParameterTest {
     @Test
     fun testNotNullConstrains() {
         // setup
-        val sut = CreateScheduleApiParameter()
+        val sut = UpdateSchoolCodeAndCalculationTargetApiParameter()
 
         // execution
         val actual = validator.validate(sut)
@@ -33,10 +35,8 @@ class CreateScheduleApiParameterTest {
         val errors = actual.map { violation -> violation.propertyPath.toString() }.toSet()
         errors.forEach(log::info)
         assertThat(errors).containsExactlyInAnyOrder(
-            "scheduleCode",
-            "targetYearAndMonth",
             "schoolCodeAndCalculationTargets")
-        assertThat(actual).hasSize(3)
+        assertThat(actual).hasSize(1)
     }
 
     /**
@@ -45,7 +45,7 @@ class CreateScheduleApiParameterTest {
     @Test
     fun testNormalPatternConstrains() {
         // setup
-        val sut = CreateScheduleApiParameterFixtures.create()
+        val sut = UpdateSchoolCodeAndCalculationTargetApiParameterFixtures.create()
 
         // execution
         val actual = validator.validate(sut)
@@ -60,10 +60,7 @@ class CreateScheduleApiParameterTest {
     @Test
     fun testViolatePatternConstrains() {
         // setup
-        val sut = CreateScheduleApiParameter(
-            scheduleCode = repeat("x", 129),
-            targetYearAndMonth = "2019-111",
-            attributes = """{"invalid":json_value}""",
+        val sut = UpdateSchoolCodeAndCalculationTargetApiParameter(
             schoolCodeAndCalculationTargets = listOf(
                 SchoolCodeAndCalculationTarget(repeat("x", 129), null))
         )
@@ -72,14 +69,10 @@ class CreateScheduleApiParameterTest {
         val actual = validator.validate(sut)
 
         // verify
-        assertThat(actual).hasSize(7)
+        assertThat(actual).hasSize(3)
         val errors = actual.map { violation -> "${violation.propertyPath} ${violation.message}" }.toSet()
         errors.forEach(log::info)
         assertThat(errors).containsExactlyInAnyOrder(
-            "scheduleCode size must be between 0 and 128",
-            "scheduleCode must match \"[a-zA-Z0-9][-a-zA-Z0-9_]{0,127}\"",
-            "attributes must match json string format",
-            "targetYearAndMonth must match \"^[0-9]{4}-[0-9]{2}\$\"",
             "schoolCodeAndCalculationTargets[0].schoolCode must match \"[a-zA-Z0-9][-a-zA-Z0-9_]{0,127}\"",
             "schoolCodeAndCalculationTargets[0].schoolCode size must be between 0 and 128",
             "schoolCodeAndCalculationTargets[0].calculationTarget must not be null")
@@ -91,9 +84,7 @@ class CreateScheduleApiParameterTest {
     @Test
     fun testViolatePatternConstrains_Format() {
         // setup
-        val sut = CreateScheduleApiParameter(
-            scheduleCode = "スケジュールコード",
-            targetYearAndMonth = "2019-11",
+        val sut = UpdateSchoolCodeAndCalculationTargetApiParameter(
             schoolCodeAndCalculationTargets = listOf(
                 SchoolCodeAndCalculationTarget("スクールコード", false))
         )
@@ -102,35 +93,32 @@ class CreateScheduleApiParameterTest {
         val actual = validator.validate(sut)
 
         // verify
-        assertThat(actual).hasSize(2)
+        assertThat(actual).hasSize(1)
         val errors = actual.map { violation -> "${violation.propertyPath} ${violation.message}" }.toSet()
         errors.forEach(log::info)
         assertThat(errors).containsExactlyInAnyOrder(
-            "scheduleCode must match \"[a-zA-Z0-9][-a-zA-Z0-9_]{0,127}\"",
             "schoolCodeAndCalculationTargets[0].schoolCode must match \"[a-zA-Z0-9][-a-zA-Z0-9_]{0,127}\"")
     }
 
     @Test
     fun testToParameter() {
         // setup
-        val sut = CreateScheduleApiParameterFixtures.create()
+        val sut = UpdateSchoolCodeAndCalculationTargetApiParameterFixtures.create()
 
         // execution
-        val actual = sut.toParameter("USER_0001")
+        val actual = sut.toParameter("SCHEDULE-0001", "USER_0001")
 
         // verify
-        val expected = CreateScheduleUseCaseParameter(
-            scheduleCode = sut.scheduleCode!!,
-            targetDateString = sut.targetYearAndMonth!!,
-            attributes = sut.attributes,
-            createUserCode = "USER_0001",
-            schoolCodeAndCalculationTargets = listOf(
-                net.jp.vss.visitscheduler.usecase.schedules.SchoolCodeAndCalculationTarget(
-                    sut.schoolCodeAndCalculationTargets!![0].schoolCode!!,
-                    sut.schoolCodeAndCalculationTargets!![0].calculationTarget!!),
-                net.jp.vss.visitscheduler.usecase.schedules.SchoolCodeAndCalculationTarget(
-                    sut.schoolCodeAndCalculationTargets!![1].schoolCode!!,
-                    sut.schoolCodeAndCalculationTargets!![1].calculationTarget!!)))
+        val expected = UpdateSchoolCodeAndCalculationTargetUseCaseParameter(
+            scheduleCode = Schedule.ScheduleCode("SCHEDULE-0001"),
+            userCode = User.UserCode("USER_0001"),
+                schoolCodeAndCalculationTargets = listOf(
+                    net.jp.vss.visitscheduler.usecase.schedules.SchoolCodeAndCalculationTarget(
+                        sut.schoolCodeAndCalculationTargets!![0].schoolCode!!,
+                        sut.schoolCodeAndCalculationTargets!![0].calculationTarget!!),
+                    net.jp.vss.visitscheduler.usecase.schedules.SchoolCodeAndCalculationTarget(
+                        sut.schoolCodeAndCalculationTargets!![1].schoolCode!!,
+                        sut.schoolCodeAndCalculationTargets!![1].calculationTarget!!)))
         assertThat(actual).isEqualTo(expected)
     }
 }

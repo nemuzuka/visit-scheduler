@@ -3,16 +3,15 @@ package net.jp.vss.visitscheduler.controller.schedules
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.nhaarman.mockitokotlin2.whenever
 import net.jp.vss.visitscheduler.IntegrationHelper
-import net.jp.vss.visitscheduler.controller.exceptions.HttpConflictException
+import net.jp.vss.visitscheduler.controller.exceptions.HttpNotFoundException
 import net.jp.vss.visitscheduler.controller.schools.CreateSchoolApiParameterFixtures
 import net.jp.vss.visitscheduler.controller.schools.SchoolIntegrationHelper
-import net.jp.vss.visitscheduler.domain.schedules.Schedule
-import net.jp.vss.visitscheduler.domain.users.User
 import net.jp.vss.visitscheduler.infrastructure.schedules.JdbcScheduleRepository
+import net.jp.vss.visitscheduler.infrastructure.schedules.ScheduleSchoolConnectionDao
+import net.jp.vss.visitscheduler.infrastructure.schedules.ScheduleSchoolConnectionEntity
 import net.jp.vss.visitscheduler.usecase.users.UserUseCaseResult
 import org.assertj.core.api.Assertions.assertThat
 import org.flywaydb.core.Flyway
-import org.hamcrest.Matchers
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -37,12 +36,12 @@ import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.context.WebApplicationContext
 
 /**
- * CreateScheduleApiController の IntegrationTest.
+ * UpdateSchoolCodeAndCalculationTargetApiController の IntegrationTest.
  */
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("integrationtest")
-class CreateScheduleApiIntegrationTest {
+class UpdateSchoolCodeAndCalculationTargetApiIntegrationTest {
 
     companion object {
         const val AUTORIZED_CLIENT_REGISTRATION_ID = "google"
@@ -70,6 +69,9 @@ class CreateScheduleApiIntegrationTest {
 
     @Autowired
     private lateinit var integrationHelper: IntegrationHelper
+
+    @Autowired
+    private lateinit var scheduleSchoolConnectionDao: ScheduleSchoolConnectionDao
 
     private lateinit var mockMvc: MockMvc
 
@@ -109,41 +111,59 @@ class CreateScheduleApiIntegrationTest {
     }
 
     @Test
-    fun testCreateSchedule() {
+    fun testUpdateSchoolCodeAndCalculationTarget() {
         // setup
         createSchool("school_0001")
         createSchool("school_0002")
 
-        val request = CreateScheduleApiParameterFixtures.create().copy(
+        val createScheduleRequest = CreateScheduleApiParameterFixtures.create().copy(
             schoolCodeAndCalculationTargets = listOf(
                 SchoolCodeAndCalculationTarget("school_0001", true),
                 SchoolCodeAndCalculationTarget("school_0002", false)))
-        val content = objectMapper.writeValueAsString(request)
+        scheduleIntegrationHelper.createSchedule(mockMvc, createScheduleRequest)
+
+        val updateSchoolCodeAndCalculationTargetRequest = UpdateSchoolCodeAndCalculationTargetApiParameter(
+            listOf(SchoolCodeAndCalculationTarget("school_0001", false)))
+        val content = objectMapper.writeValueAsString(updateSchoolCodeAndCalculationTargetRequest)
 
         // execution
-        mockMvc.perform(MockMvcRequestBuilders.post(ScheduleIntegrationHelper.CREATE_SCHEDULE_PATH)
+        mockMvc.perform(MockMvcRequestBuilders.post(
+            ScheduleIntegrationHelper.UPDATE_SCHOOL_CODE_AND_CALCULATION_TARGET_PATH,
+            createScheduleRequest.scheduleCode)
             .contentType(MediaType.APPLICATION_JSON)
             .content(content))
             .andDo(MockMvcResultHandlers.print())
             // verify
             .andExpect(MockMvcResultMatchers.status().isOk)
-            .andExpect(MockMvcResultMatchers.jsonPath("$.schedule_code", Matchers.equalTo(request.scheduleCode)))
 
         // 永続化していること
-        val createdSchool = jdbcScheduleRepo.getSchedule(Schedule.ScheduleCode(request.scheduleCode!!),
-            User.UserCode(dummyUser!!.userCode))
-        assertThat(createdSchool)
-            .returns(Schedule.ScheduleCode(request.scheduleCode!!), Schedule::scheduleCode)
+        val scheduleSchoolConnections = scheduleSchoolConnectionDao.findByScheduleCode(
+            createScheduleRequest.scheduleCode!!)
+        assertThat(scheduleSchoolConnections).hasSize(1)
+        assertThat(scheduleSchoolConnections[0])
+            .returns(false, ScheduleSchoolConnectionEntity::calculationTarget)
     }
 
     @Test
-    fun testCreateSchedule_InvalidParameter_400() {
+    fun testUpdateSchoolCodeAndCalculationTarget_InvalidParameter_400() {
         // setup
-        val request = CreateScheduleApiParameterFixtures.create().copy(scheduleCode = null)
-        val content = objectMapper.writeValueAsString(request)
+        createSchool("school_0001")
+        createSchool("school_0002")
+
+        val createScheduleRequest = CreateScheduleApiParameterFixtures.create().copy(
+            schoolCodeAndCalculationTargets = listOf(
+                SchoolCodeAndCalculationTarget("school_0001", true),
+                SchoolCodeAndCalculationTarget("school_0002", false)))
+        scheduleIntegrationHelper.createSchedule(mockMvc, createScheduleRequest)
+
+        val updateSchoolCodeAndCalculationTargetRequest = UpdateSchoolCodeAndCalculationTargetApiParameter(
+            listOf(SchoolCodeAndCalculationTarget(null, false)))
+        val content = objectMapper.writeValueAsString(updateSchoolCodeAndCalculationTargetRequest)
 
         // execution
-        val actual = mockMvc.perform(MockMvcRequestBuilders.post(ScheduleIntegrationHelper.CREATE_SCHEDULE_PATH)
+        val actual = mockMvc.perform(MockMvcRequestBuilders.post(
+            ScheduleIntegrationHelper.UPDATE_SCHOOL_CODE_AND_CALCULATION_TARGET_PATH,
+            createScheduleRequest.scheduleCode)
             .contentType(MediaType.APPLICATION_JSON)
             .content(content))
             .andDo(MockMvcResultHandlers.print())
@@ -153,31 +173,31 @@ class CreateScheduleApiIntegrationTest {
         assertThat(actual.response.status).isEqualTo(HttpStatus.BAD_REQUEST.value())
         val exception = actual.resolvedException as MethodArgumentNotValidException
         assertThat(exception.bindingResult.allErrors).hasSize(1)
-        assertThat(exception.bindingResult.fieldErrors[0].field).isEqualTo("scheduleCode")
+        assertThat(exception.bindingResult.fieldErrors[0].field)
+            .isEqualTo("schoolCodeAndCalculationTargets[0].schoolCode")
         assertThat(exception.bindingResult.fieldErrors[0].defaultMessage).isEqualTo("must not be null")
     }
 
     @Test
-    fun testCreateSchool_ExsitsSchoolCode_409() {
+    fun testUpdateSchoolCodeAndCalculationTarget_NotFounfScheduleCode_404() {
         // setup
         createSchool("school_0001")
-        val request = CreateScheduleApiParameterFixtures.create().copy(
-            schoolCodeAndCalculationTargets = listOf(
-                SchoolCodeAndCalculationTarget("school_0001", true)))
-        scheduleIntegrationHelper.createSchedule(mockMvc, request)
-        val content = objectMapper.writeValueAsString(request)
+        val updateSchoolCodeAndCalculationTargetRequest = UpdateSchoolCodeAndCalculationTargetApiParameter(
+            listOf(SchoolCodeAndCalculationTarget("S-001", false)))
+        val content = objectMapper.writeValueAsString(updateSchoolCodeAndCalculationTargetRequest)
 
         // execution
-        val actual = mockMvc.perform(MockMvcRequestBuilders.post(ScheduleIntegrationHelper.CREATE_SCHEDULE_PATH)
+        val actual = mockMvc.perform(MockMvcRequestBuilders.post(
+            ScheduleIntegrationHelper.UPDATE_SCHOOL_CODE_AND_CALCULATION_TARGET_PATH, "absent")
             .contentType(MediaType.APPLICATION_JSON)
             .content(content))
             .andDo(MockMvcResultHandlers.print())
             .andReturn()
 
         // verify
-        assertThat(actual.response.status).isEqualTo(HttpStatus.CONFLICT.value())
-        val exception = actual.resolvedException as HttpConflictException
-        assertThat(exception.message).isEqualTo("Schedule(${request.scheduleCode}) は既に存在しています")
+        assertThat(actual.response.status).isEqualTo(HttpStatus.NOT_FOUND.value())
+        val exception = actual.resolvedException as HttpNotFoundException
+        assertThat(exception.message).isEqualTo("Schedule(absent) は存在しません")
     }
 
     private fun createSchool(schoolCodeValue: String) {

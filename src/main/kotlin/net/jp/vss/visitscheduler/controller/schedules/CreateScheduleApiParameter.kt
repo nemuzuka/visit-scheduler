@@ -48,22 +48,4 @@ data class CreateScheduleApiParameter(
             schoolCodeAndCalculationTargets = schoolCodeAndCalculationTargets!!.map {
                 it.toSchoolCodeAndCalculationTarget()
             }.toList())
-
-    data class SchoolCodeAndCalculationTarget(
-        @field:NotNull
-        @field:Pattern(regexp = "[a-zA-Z0-9][-a-zA-Z0-9_]{0,127}")
-        @field:Size(max = 128)
-        @field:JsonProperty("school_code")
-        val schoolCode: String? = null,
-
-        @field:NotNull
-        @field:JsonProperty("calculation_target")
-        val calculationTarget: Boolean? = null
-    ) {
-        fun toSchoolCodeAndCalculationTarget(): CreateScheduleUseCaseParameter.SchoolCodeAndCalculationTarget {
-            return CreateScheduleUseCaseParameter.SchoolCodeAndCalculationTarget(
-                schoolCodeValue = schoolCode!!,
-                calculationTarget = calculationTarget!!)
-        }
-    }
 }

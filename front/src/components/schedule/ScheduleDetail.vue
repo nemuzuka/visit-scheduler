@@ -8,7 +8,7 @@
     <div class="buttons are-medium">
       <button class="button" @click="movePrivateSchedule">個人スケジュール設定</button>
       <button class="button" @click="openSchoolScheduleDialog">学校スケジュール設定</button>
-      <button class="button">優先度設定</button>
+      <button class="button" @click="openSortSchoolDialog">優先度設定</button>
       <button class="button" @click="openScheduleSettingDialog">スケジュール計算</button>
     </div>
 
@@ -19,8 +19,6 @@
           {{globalErrorMessage}}
         </div>
       </article>
-
-      <schedule-calendar :targetYearAndMonth="targetYearAndMonth" :privateSchedules="privateSchedules" :schoolWithSchedules="schoolWithSchedules" :visitSchedules="visitSchedules" ref="scheduleCalendar"></schedule-calendar>
 
       <div class="field">
         <p class="control has-text-right">
@@ -33,10 +31,13 @@
         </p>
       </div>
 
+      <schedule-calendar :targetYearAndMonth="targetYearAndMonth" :privateSchedules="privateSchedules" :schoolWithSchedules="schoolWithSchedules" :visitSchedules="visitSchedules" ref="scheduleCalendar"></schedule-calendar>
+
     </div>
 
     <select-school-dialog :targetYearAndMonth="targetYearAndMonth" :schoolWithSchedules="schoolWithSchedules" ref="selectSchoolDialog"></select-school-dialog>
     <schedule-setting-dialog :targetYearAndMonth="targetYearAndMonth" :schoolWithSchedules="schoolWithSchedules" :privateSchedules="privateSchedules" :visitSchedules="visitSchedules" ref="scheduleSettingDialog" @RefreshVisitSchedule="refreshVisitSchedule"></schedule-setting-dialog>
+    <sort-school-dialog :targetYearAndMonth="targetYearAndMonth" :schoolWithSchedules="schoolWithSchedules" :scheduleCode="scheduleCode" ref="sortSchoolDialog" @Refresh="refresh"></sort-school-dialog>
 
     <p class="back"><a @click="moveTop"><font-awesome-icon icon="arrow-left" /></a></p>
 
@@ -47,6 +48,7 @@
 
   import Utils from "../../utils"
   import SelectSchoolDialog from "./school/SelectSchoolDialog"
+  import SortSchoolDialog from "./school/SortSchoolDialog"
   import ScheduleCalendar from "./ScheduleCalendar"
   import ScheduleSettingDialog from "./ScheduleSettingDialog"
 
@@ -54,6 +56,7 @@
     name: 'schedule-detail',
     components:{
       SelectSchoolDialog,
+      SortSchoolDialog,
       ScheduleCalendar,
       ScheduleSettingDialog
     },
@@ -71,36 +74,12 @@
         visitSchedules:[]
       }
     },
-    async created () {
+    created () {
       const self = this
-      self.sceduleCode = self.$route.params.schedule_code
-      localStorage.sceduleCode = self.sceduleCode
+      self.scheduleCode = self.$route.params.schedule_code
+      localStorage.sceduleCode = self.scheduleCode
 
-      try {
-        const response = await self.$http.get('/api/schedules/' + self.sceduleCode)
-
-        const scheduleDetail = response.data
-        self.scheduleDetail.version = scheduleDetail.version
-
-        self.schoolWithSchedules.splice(0, self.schoolWithSchedules.length)
-        self.schoolWithSchedules.push(...scheduleDetail.school_with_schedules)
-
-        self.privateSchedules.splice(0, self.privateSchedules.length)
-        self.privateSchedules.push(...scheduleDetail.private_schedules)
-
-        self.visitSchedules.splice(0, self.visitSchedules.length)
-        self.visitSchedules.push(...scheduleDetail.visit_schedules)
-
-        self.targetYearAndMonth = scheduleDetail.target_year_and_month
-        self.scheduleTitle = Utils.targetYearAndMonthForView(self.targetYearAndMonth) + " スケジュール"
-
-      } catch(error) {
-        if(error.response.status === 404) {
-          const errorData = error.response.data
-          alert(errorData.message)
-        }
-        await self.$router.push('/')
-      }
+      self.refresh()
     },
     methods: {
       moveTop() {
@@ -115,6 +94,10 @@
         const self = this
         self.$refs.selectSchoolDialog.openDialog()
       },
+      openSortSchoolDialog() {
+        const self = this
+        self.$refs.sortSchoolDialog.openDialog()
+      },
       openScheduleSettingDialog() {
         const self = this
         self.$refs.scheduleSettingDialog.openDialog()
@@ -125,6 +108,34 @@
         self.visitSchedules.push(...list)
 
         self.$refs.scheduleCalendar.refresh()
+      },
+      async refresh() {
+        const self = this
+        try {
+          const response = await self.$http.get('/api/schedules/' + self.scheduleCode)
+
+          const scheduleDetail = response.data
+          self.scheduleDetail.version = scheduleDetail.version
+
+          self.schoolWithSchedules.splice(0, self.schoolWithSchedules.length)
+          self.schoolWithSchedules.push(...scheduleDetail.school_with_schedules)
+
+          self.privateSchedules.splice(0, self.privateSchedules.length)
+          self.privateSchedules.push(...scheduleDetail.private_schedules)
+
+          self.visitSchedules.splice(0, self.visitSchedules.length)
+          self.visitSchedules.push(...scheduleDetail.visit_schedules)
+
+          self.targetYearAndMonth = scheduleDetail.target_year_and_month
+          self.scheduleTitle = Utils.targetYearAndMonthForView(self.targetYearAndMonth) + " スケジュール"
+
+        } catch(error) {
+          if(error.response.status === 404) {
+            const errorData = error.response.data
+            alert(errorData.message)
+          }
+          await self.$router.push('/')
+        }
       },
       saveVisitSchedule() {
         const self = this

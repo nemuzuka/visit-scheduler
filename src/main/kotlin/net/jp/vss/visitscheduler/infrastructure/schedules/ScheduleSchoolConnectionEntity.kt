@@ -18,7 +18,7 @@ import org.seasar.doma.Table
  */
 @Entity(immutable = true)
 @Table(name = "schedule_school_connections")
-class ScheduleSchoolConnectionEntity(
+data class ScheduleSchoolConnectionEntity(
     @Id
     @Column(name = "schedule_school_connection_id")
     val scheduleSchoolConnectionId: String,

@@ -1,8 +1,10 @@
 package net.jp.vss.visitscheduler.infrastructure.schedules
 
 import org.seasar.doma.Dao
+import org.seasar.doma.Delete
 import org.seasar.doma.Insert
 import org.seasar.doma.Select
+import org.seasar.doma.Update
 import org.seasar.doma.boot.ConfigAutowireable
 import org.seasar.doma.experimental.Sql
 import org.seasar.doma.jdbc.Result
@@ -26,6 +28,15 @@ interface ScheduleSchoolConnectionDao {
     fun create(entity: ScheduleSchoolConnectionEntity): Result<ScheduleSchoolConnectionEntity>
 
     /**
+     * 更新.
+     *
+     * @param entity 更新Entity
+     * @return 結果
+     */
+    @Update
+    fun update(entity: ScheduleSchoolConnectionEntity): Result<ScheduleSchoolConnectionEntity>
+
+    /**
      * schedule_code による取得.
      *
      * @param scheduleCode スケジュールコード
@@ -40,4 +51,13 @@ interface ScheduleSchoolConnectionDao {
     """)
     @Select
     fun findByScheduleCode(scheduleCode: String): List<ScheduleSchoolConnectionEntity>
+
+    /**
+     * 削除.
+     *
+     * @param entity 対象 Entity
+     * @return 結果
+     */
+    @Delete
+    fun delete(entity: ScheduleSchoolConnectionEntity): Result<ScheduleSchoolConnectionEntity>
 }
