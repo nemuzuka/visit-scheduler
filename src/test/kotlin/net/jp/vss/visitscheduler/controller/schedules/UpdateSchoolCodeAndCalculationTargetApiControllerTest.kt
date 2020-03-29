@@ -7,7 +7,6 @@ import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import java.lang.IllegalStateException
 import net.jp.vss.visitscheduler.domain.exceptions.NotFoundException
-import net.jp.vss.visitscheduler.usecase.schedules.ScheduleUseCaseResultFixtures
 import net.jp.vss.visitscheduler.usecase.schedules.UpdateSchoolCodeAndCalculationTargetUseCase
 import net.jp.vss.visitscheduler.usecase.users.GetUserUseCase
 import net.jp.vss.visitscheduler.usecase.users.UserUseCaseResultFixtures
@@ -83,7 +82,6 @@ class UpdateSchoolCodeAndCalculationTargetApiControllerTest {
         val user = UserUseCaseResultFixtures.create()
         whenever(getUserUseCase.getUser(anyString(), anyString())).thenReturn(user)
 
-        val createdSchedule = ScheduleUseCaseResultFixtures.create()
         doNothing().whenever(updateSchoolCodeAndCalculationTargetUseCase).update(any())
 
         val parameter = UpdateSchoolCodeAndCalculationTargetApiParameterFixtures.create()
