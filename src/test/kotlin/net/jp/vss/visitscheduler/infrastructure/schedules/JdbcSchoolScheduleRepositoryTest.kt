@@ -42,11 +42,13 @@ class JdbcSchoolScheduleRepositoryTest {
                     schoolCode = schoolCode))
 
         // execution
-        sut.save(userCode, schoolCode, targetYearAndMonth, schoolSchedules)
+        sut.save(userCode, schoolCode, targetYearAndMonth,
+            schoolSchedules, Schedule.ScheduleDate(LocalDate.of(2018, 12, 28)))
 
         // verify
         val actual = sut.getSchoolSchedules(listOf(schoolCode), targetYearAndMonth)
-        assertThat(actual).isEqualTo(schoolSchedules)
+        assertThat(actual.first).isEqualTo(schoolSchedules)
+        assertThat(actual.second).isEqualTo(mapOf(schoolCode to Schedule.ScheduleDate(LocalDate.of(2018, 12, 28))))
     }
 
     @Test
@@ -60,14 +62,17 @@ class JdbcSchoolScheduleRepositoryTest {
             listOf(SchoolScheduleFixtures.create()
                 .copy(targetDate = Schedule.ScheduleDate(LocalDate.parse("2019-01-15")),
                     schoolCode = schoolCode))
-        sut.save(userCode, schoolCode, targetYearAndMonth, schoolSchedules)
+        sut.save(userCode, schoolCode, targetYearAndMonth, schoolSchedules,
+            Schedule.ScheduleDate(LocalDate.of(2018, 12, 28)))
 
         // execution
         val schoolEntity = SchoolEntityFixtures.create().copy(schoolId = "school_id_002", versionNo = 2)
         schoolDao.delete(schoolEntity)
 
         // verify
-        assertThat(sut.getSchoolSchedules(listOf(schoolCode), targetYearAndMonth)).isEmpty()
+        val result = sut.getSchoolSchedules(listOf(schoolCode), targetYearAndMonth)
+        assertThat(result.first).isEmpty()
+        assertThat(result.second).isEmpty()
     }
 
     @Test
@@ -81,7 +86,8 @@ class JdbcSchoolScheduleRepositoryTest {
         val beforeSchoolSchedules =
             listOf(SchoolScheduleFixtures.create()
                 .copy(targetDate = Schedule.ScheduleDate(LocalDate.parse("2019-01-15"))))
-        sut.save(userCode, schoolCode, targetYearAndMonth, beforeSchoolSchedules)
+        sut.save(userCode, schoolCode, targetYearAndMonth, beforeSchoolSchedules,
+            Schedule.ScheduleDate(LocalDate.parse("2018-12-29")))
         val schoolSchedules =
             listOf(
                 SchoolScheduleFixtures.create()
@@ -92,10 +98,11 @@ class JdbcSchoolScheduleRepositoryTest {
                         schoolCode = schoolCode))
 
         // execution
-        sut.save(userCode, schoolCode, targetYearAndMonth, schoolSchedules)
+        sut.save(userCode, schoolCode, targetYearAndMonth, schoolSchedules, null)
 
         // verify
         val actual = sut.getSchoolSchedules(listOf(schoolCode), targetYearAndMonth)
-        assertThat(actual).isEqualTo(schoolSchedules)
+        assertThat(actual.first).isEqualTo(schoolSchedules)
+        assertThat(actual.second).isEqualTo(mapOf(schoolCode to null))
     }
 }

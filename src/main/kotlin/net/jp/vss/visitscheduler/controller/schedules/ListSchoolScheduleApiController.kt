@@ -2,7 +2,6 @@ package net.jp.vss.visitscheduler.controller.schedules
 
 import javax.validation.constraints.NotNull
 import javax.validation.constraints.Pattern
-import net.jp.vss.visitscheduler.controller.ListResponse
 import net.jp.vss.visitscheduler.usecase.schedules.ListSchoolScheduleUseCase
 import net.jp.vss.visitscheduler.usecase.schedules.SchoolScheduleUseCaseResult
 import net.jp.vss.visitscheduler.usecase.users.GetUserUseCase
@@ -44,8 +43,7 @@ class ListSchoolScheduleApiController(
         @Pattern(regexp = "^[0-9]{4}-[0-9]{2}\$")
         @RequestParam("target_year_and_month")
         targetYearAndMonth: String?
-    ): ResponseEntity<ListResponse<SchoolScheduleUseCaseResult>> {
-        return ResponseEntity.ok(ListResponse(
-            listSchoolScheduleUseCase.getSchoolSchedule(schoolCode!!, targetYearAndMonth!!)))
+    ): ResponseEntity<SchoolScheduleUseCaseResult> {
+        return ResponseEntity.ok(listSchoolScheduleUseCase.getSchoolSchedule(schoolCode!!, targetYearAndMonth!!))
     }
 }

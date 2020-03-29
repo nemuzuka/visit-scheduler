@@ -61,6 +61,8 @@ class JdbcScheduleDetailRepositoryTest {
             .copy(schoolCode = School.SchoolCode(school1.schoolCode),
                 targetDate = Schedule.ScheduleDate(LocalDate.parse("2020-01-24")))
         val schoolSchedules = listOf(school1Schedule1, school1Schedule2, school1Schedule3)
+        val lastMonthVisitDateMap = mapOf(
+            School.SchoolCode(school1.schoolCode) to Schedule.ScheduleDate(LocalDate.of(2020, 3, 29)))
         val visitSchedules = VisitSchedules(
             listOf(
                 VisitSchedules.VisitSchedule(Schedule.ScheduleDate(
@@ -68,13 +70,14 @@ class JdbcScheduleDetailRepositoryTest {
 
         // execution
         val actual = sut.buildScheduleDetail(schedule, privateSchedules,
-            schools, scheduleSchoolConnections, schoolSchedules, visitSchedules)
+            schools, scheduleSchoolConnections, schoolSchedules, lastMonthVisitDateMap, visitSchedules)
 
         // verify
         val schoolWithSchedules = listOf(
             ScheduleDetail.SchoolWithSchedule(school1.toSchool(), false,
-                listOf(school1Schedule1, school1Schedule2, school1Schedule3)),
-                ScheduleDetail.SchoolWithSchedule(school2.toSchool(), true, null))
+                listOf(school1Schedule1, school1Schedule2, school1Schedule3),
+                Schedule.ScheduleDate(LocalDate.of(2020, 3, 29))),
+            ScheduleDetail.SchoolWithSchedule(school2.toSchool(), true, null, null))
         val expected = ScheduleDetail(schedule, ScheduleDetail.PrivateSchedules(privateSchedules),
             ScheduleDetail.SchoolWithSchedules(schoolWithSchedules), visitSchedules)
         assertThat(actual).isEqualTo(expected)
@@ -106,15 +109,16 @@ class JdbcScheduleDetailRepositoryTest {
                 listOf(
                     VisitSchedules.VisitSchedule(Schedule.ScheduleDate(
                         LocalDate.of(2019, 1, 28)), School.SchoolCode("SCHOOL-01"))))
+        val lastMonthVisitDateMap = mapOf(School.SchoolCode(school2.schoolCode) to null)
 
         // execution
         val actual = sut.buildScheduleDetail(schedule, privateSchedules, schools,
-            scheduleSchoolConnections, schoolSchedules, visitSchedules)
+            scheduleSchoolConnections, schoolSchedules, lastMonthVisitDateMap, visitSchedules)
 
         // verify
         val schoolWithSchedules = listOf(
-            ScheduleDetail.SchoolWithSchedule(school2.toSchool(), true, listOf(school2Schedule1)),
-            ScheduleDetail.SchoolWithSchedule(school1.toSchool(), false, null))
+            ScheduleDetail.SchoolWithSchedule(school2.toSchool(), true, listOf(school2Schedule1), null),
+            ScheduleDetail.SchoolWithSchedule(school1.toSchool(), false, null, null))
         val expected = ScheduleDetail(schedule, ScheduleDetail.PrivateSchedules(privateSchedules),
             ScheduleDetail.SchoolWithSchedules(schoolWithSchedules), visitSchedules)
         assertThat(actual).isEqualTo(expected)
@@ -146,12 +150,14 @@ class JdbcScheduleDetailRepositoryTest {
             .isEqualTo(Schedule.ScheduleDate(LocalDate.parse("2019-01-05")))
         assertThat(schoolWithSchedule1.schedules!![1].targetDate)
             .isEqualTo(Schedule.ScheduleDate(LocalDate.parse("2019-01-20")))
+        assertThat(schoolWithSchedule1.lastMonthVisitDate).isNull()
 
         // 2つめの school
         val schoolWithSchedule2 = schoolWithSchedules.schoolWithSchedules[1]
         assertThat(schoolWithSchedule2.school.schoolCode).isEqualTo(School.SchoolCode("school_code_003"))
         assertThat(schoolWithSchedule2.calculationTarget).isEqualTo(false)
         assertThat(schoolWithSchedule2.schedules).isNull()
+        assertThat(schoolWithSchedule2.lastMonthVisitDate).isNull()
 
         // 3つめの school
         val schoolWithSchedule3 = schoolWithSchedules.schoolWithSchedules[2]
@@ -160,6 +166,7 @@ class JdbcScheduleDetailRepositoryTest {
         assertThat(schoolWithSchedule3.schedules).hasSize(1)
         assertThat(schoolWithSchedule3.schedules!![0].targetDate)
             .isEqualTo(Schedule.ScheduleDate(LocalDate.parse("2019-01-13")))
+        assertThat(schoolWithSchedule3.lastMonthVisitDate).isEqualTo(Schedule.ScheduleDate(LocalDate.of(2018, 12, 31)))
     }
 
     @Test

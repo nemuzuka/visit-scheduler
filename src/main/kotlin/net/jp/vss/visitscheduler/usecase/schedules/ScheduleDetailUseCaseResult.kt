@@ -64,8 +64,8 @@ data class ScheduleDetailUseCaseResult(
         @field:JsonProperty("calculation_target")
         val calculationTarget: Boolean,
 
-        @field:JsonProperty("schedules")
-        val schedules: List<SchoolScheduleUseCaseResult>?
+        @field:JsonUnwrapped
+        val schoolSchedule: SchoolScheduleUseCaseResult
     ) {
 
         companion object {
@@ -73,7 +73,9 @@ data class ScheduleDetailUseCaseResult(
                 return SchoolWithScheduleUseCaseResult(
                     SchoolUseCaseResult.of(schoolWithSchedule.school),
                     schoolWithSchedule.calculationTarget,
-                    schoolWithSchedule.schedules?.map { SchoolScheduleUseCaseResult.of(it) }?.toList())
+                    SchoolScheduleUseCaseResult.of(schoolSchedules = schoolWithSchedule.schedules ?: listOf(),
+                        lastMonthVisitDate = schoolWithSchedule.lastMonthVisitDate)
+                )
             }
         }
     }

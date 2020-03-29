@@ -16,13 +16,15 @@ import org.springframework.stereotype.Repository
 @Repository
 class JdbcSchoolScheduleRepository(
     private val schoolScheduleDao: SchoolScheduleDao,
-    private val schoolDao: SchoolDao
+    private val schoolDao: SchoolDao,
+    private val lastMonthVisitDateDao: LastMonthVisitDateDao
 ) : SchoolScheduleRepository {
     override fun save(
         userCode: User.UserCode,
         schoolCode: School.SchoolCode,
         targetYearAndMonth: Schedule.TargetYearAndMonth,
-        schoolSchedules: List<SchoolSchedule>
+        schoolSchedules: List<SchoolSchedule>,
+        lastMonthVisitDate: Schedule.ScheduleDate?
     ) {
 
         val userCodeValue = userCode.value
@@ -36,19 +38,30 @@ class JdbcSchoolScheduleRepository(
         val to = yearMonth.atDay(from.lengthOfMonth())
 
         schoolScheduleDao.delete(schoolCodeValue, from, to) // 1度削除
-
         schoolSchedules.forEach { schoolScheduleDao.create(SchoolScheduleEntity.fromSchoolSchedule(it, schoolId)) }
+
+        lastMonthVisitDateDao.delete(schoolId.value, targetYearAndMonth.value)
+        val lastMonthVisitDateEntity = LastMonthVisitDateEntity.of(schoolId, targetYearAndMonth, lastMonthVisitDate)
+        lastMonthVisitDateDao.create(lastMonthVisitDateEntity)
     }
 
     override fun getSchoolSchedules(
         schoolCodes: List<School.SchoolCode>,
         targetYearAndMonth: Schedule.TargetYearAndMonth
-    ): List<SchoolSchedule> {
+    ): Pair<List<SchoolSchedule>, Map<School.SchoolCode, Schedule.ScheduleDate?>> {
         val yearMonth = YearMonth.parse(targetYearAndMonth.value)
         val from = yearMonth.atDay(1)
         val to = yearMonth.atDay(from.lengthOfMonth())
 
-        return schoolScheduleDao.findBySchoolCodesAndTargetDate(schoolCodes.map { it.value }.toList(), from, to)
+        val schoolCodeValues = schoolCodes.map { it.value }.toList()
+
+        val schoolSchedules = schoolScheduleDao.findBySchoolCodesAndTargetDate(schoolCodeValues, from, to)
             .map { it.toSchoolSchedule() }.toList()
+        val scheduleDateMap = lastMonthVisitDateDao.findBySchoolCodesAndTargetDate(
+            schoolCodeValues, targetYearAndMonth.value)
+            .map { School.SchoolCode(it.schoolCode!!) to it.lastMonthVisitDate?.let {
+                lastMonthVisitDate -> Schedule.ScheduleDate(lastMonthVisitDate) } }
+            .toMap()
+        return schoolSchedules to scheduleDateMap
     }
 }

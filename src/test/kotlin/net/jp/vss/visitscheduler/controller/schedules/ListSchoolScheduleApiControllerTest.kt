@@ -2,6 +2,8 @@ package net.jp.vss.visitscheduler.controller.schedules
 
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
+import java.time.LocalDate
+import net.jp.vss.visitscheduler.domain.schedules.Schedule
 import net.jp.vss.visitscheduler.domain.schedules.SchoolScheduleFixtures
 import net.jp.vss.visitscheduler.usecase.schedules.ListSchoolScheduleUseCase
 import net.jp.vss.visitscheduler.usecase.schedules.SchoolScheduleUseCaseResult
@@ -41,7 +43,8 @@ class ListSchoolScheduleApiControllerTest {
         // setup
         val schoolSchedule = SchoolScheduleFixtures.create()
         whenever(listSchoolScheduleUseCase.getSchoolSchedule(anyString(), anyString()))
-            .thenReturn(listOf(SchoolScheduleUseCaseResult.of(schoolSchedule)))
+            .thenReturn(SchoolScheduleUseCaseResult.of(listOf(schoolSchedule),
+                Schedule.ScheduleDate(LocalDate.parse("2019-12-28"))))
         val targetYearAndMonth = "2019-12"
         val schoolCode = "SCHOOL_0001"
 
@@ -51,8 +54,9 @@ class ListSchoolScheduleApiControllerTest {
                 schoolCode, targetYearAndMonth))
             // verify
             .andExpect(status().isOk)
-            .andExpect(jsonPath("$.elements", hasSize<Int>(1)))
-            .andExpect(jsonPath("$.elements[0].target_day").value(`is`(21)))
+            .andExpect(jsonPath("$.school_schedules", hasSize<Int>(1)))
+            .andExpect(jsonPath("$.school_schedules[0].target_day").value(`is`(21)))
+            .andExpect(jsonPath("$.last_month_visit_date").value(`is`("2019-12-28")))
 
         verify(listSchoolScheduleUseCase).getSchoolSchedule(schoolCode, targetYearAndMonth)
     }

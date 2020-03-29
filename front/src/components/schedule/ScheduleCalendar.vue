@@ -5,9 +5,9 @@
       <tr bgcolor="lightgray">
         <th></th>
         <th>訪問</th>
-        <th>個人</th>
-        <th v-for="schoolWithSchedule in schoolWithSchedules" :key="schoolWithSchedule.school.school_code">
-          {{schoolWithSchedule.school.name}} <br> <span v-bind:class="[activeClass, isCalculationTarget(schoolWithSchedule)?'is-info' : 'is-black']">{{viewSchoolDetail(schoolWithSchedule)}}</span>
+        <th @click="movePrivateSchedule" style="cursor: pointer">個人</th>
+        <th v-for="schoolWithSchedule in schoolWithSchedules" :key="schoolWithSchedule.school.school_code"  @click="moveSchoolSchedule(schoolWithSchedule)" style="cursor: pointer">
+          {{schoolWithSchedule.school.name}} <br><small class="label">{{viewLastMonthVisitDate(schoolWithSchedule)}}</small> <span v-bind:class="[activeClass, isCalculationTarget(schoolWithSchedule)?'is-info' : 'is-black']">{{viewSchoolDetail(schoolWithSchedule)}}</span>
         </th>
       </tr>
       </thead>
@@ -78,15 +78,15 @@
       viewSchoolSchedule(index, day) {
         const self = this
         const schoolWithSchedule = self.schoolWithSchedules[index]
-        if(schoolWithSchedule.schedules === null) {
+        if(schoolWithSchedule.school_schedules === null) {
           return ""
         }
-        const scheduleIndex = schoolWithSchedule.schedules.findIndex(schedule => schedule.target_day === day)
+        const scheduleIndex = schoolWithSchedule.school_schedules.findIndex(schedule => schedule.target_day === day)
         if(scheduleIndex === -1) {
           return ""
         }
 
-        const targetSchedule = schoolWithSchedule.schedules[scheduleIndex]
+        const targetSchedule = schoolWithSchedule.school_schedules[scheduleIndex]
         const priority = targetSchedule.priority
         let message = ""
         if(priority === "DONT_COME") {
@@ -125,6 +125,22 @@
           return
         }
         return schoolWithSchedule.school.name
+      },
+      viewLastMonthVisitDate(schoolWithSchedule) {
+        const lastMonthVisitDate = schoolWithSchedule.last_month_visit_date
+        if(lastMonthVisitDate === null) {
+          return "最終訪問日:未設定"
+        }
+        return lastMonthVisitDate
+      },
+      movePrivateSchedule() {
+        const self = this
+        self.$router.push('/private-schedule/'+self.targetYearAndMonth)
+      },
+      moveSchoolSchedule(schoolWithSchedule) {
+        const self = this
+        const school = schoolWithSchedule.school
+        self.$router.push("/school-schedule/" + self.targetYearAndMonth + "/school/" + school.school_code)
       }
     },
     watch: {
@@ -137,7 +153,7 @@
 </script>
 
 <style scoped>
-  small.info {
+  small.label {
     font-weight: normal;
     font-size: small;
   }

@@ -21,6 +21,7 @@ class SaveSchoolScheduleUseCaseImpl(
         schoolScheduleRepo.save(User.UserCode(parameter.createUserCode),
             School.SchoolCode(parameter.schoolCode),
             Schedule.TargetYearAndMonth(parameter.targetDateString),
-            parameter.toSchoolSchedules())
+            parameter.toSchoolSchedules(),
+            parameter.lastMonthVisitDate)
     }
 }

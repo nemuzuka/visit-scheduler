@@ -101,7 +101,7 @@ class ListSchoolScheduleApiIntegrationTest {
         schoolIntegrationHelper.createSchool(mockMvc,
             CreateSchoolApiParameterFixtures.create().copy(schoolCode = "SCHOOL_0001"))
         val saveParameter = SaveSchoolScheduleApiParameterFixtures.create()
-        schoolScheduleIntegrationHelper.savePrivateSchedule(mockMvc, saveParameter)
+        schoolScheduleIntegrationHelper.saveSchoolSchedule(mockMvc, saveParameter)
 
         // execution
         mockMvc.perform(MockMvcRequestBuilders.get(SchoolScheduleIntegrationHelper.LIST_SCHOOL_SCHEDULE_PATH,
@@ -109,13 +109,14 @@ class ListSchoolScheduleApiIntegrationTest {
             .andDo(MockMvcResultHandlers.print())
             // verify
             .andExpect(status().isOk)
-            .andExpect(jsonPath("$.elements", hasSize<Int>(2)))
-            .andExpect(jsonPath("$.elements[0].target_day").value(`is`(1)))
-            .andExpect(jsonPath("$.elements[0].memo").value(`is`("メモ1")))
-            .andExpect(jsonPath("$.elements[0].priority").value(`is`("DONT_COME")))
-            .andExpect(jsonPath("$.elements[1].target_day").value(`is`(3)))
-            .andExpect(jsonPath("$.elements[1].memo").value(`is`("メモ2")))
-            .andExpect(jsonPath("$.elements[1].priority").value(`is`("POSSIBLE")))
+            .andExpect(jsonPath("$.school_schedules", hasSize<Int>(2)))
+            .andExpect(jsonPath("$.school_schedules[0].target_day").value(`is`(1)))
+            .andExpect(jsonPath("$.school_schedules[0].memo").value(`is`("メモ1")))
+            .andExpect(jsonPath("$.school_schedules[0].priority").value(`is`("DONT_COME")))
+            .andExpect(jsonPath("$.school_schedules[1].target_day").value(`is`(3)))
+            .andExpect(jsonPath("$.school_schedules[1].memo").value(`is`("メモ2")))
+            .andExpect(jsonPath("$.school_schedules[1].priority").value(`is`("POSSIBLE")))
+            .andExpect(jsonPath("$.last_month_visit_date").value(`is`(saveParameter.lastMonthVisitDate!!)))
     }
 
     @Test

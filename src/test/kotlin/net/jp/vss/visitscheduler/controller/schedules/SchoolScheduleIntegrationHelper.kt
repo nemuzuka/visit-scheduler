@@ -32,7 +32,7 @@ class SchoolScheduleIntegrationHelper {
      * @param parameter パラメータ
      * @return レスポンス
      */
-    fun savePrivateSchedule(mockMvc: MockMvc, parameter: SaveSchoolScheduleApiParameter): MvcResult {
+    fun saveSchoolSchedule(mockMvc: MockMvc, parameter: SaveSchoolScheduleApiParameter): MvcResult {
 
         val content = objectMapper.writeValueAsString(parameter)
         val response = mockMvc.perform(MockMvcRequestBuilders.post(SAVE_SCHOOL_SCHEDULE_PATH)

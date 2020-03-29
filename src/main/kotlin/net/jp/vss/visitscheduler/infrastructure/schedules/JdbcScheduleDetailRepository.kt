@@ -50,7 +50,7 @@ class JdbcScheduleDetailRepository(
         val visitSchedules = visitSchedulesRepo.getVisitSchedules(schoolCodes, schedule.targetYearAndMonth)
 
         return buildScheduleDetail(schedule, privateSchedules, schools,
-            scheduleSchoolConnections, schoolSchedules, visitSchedules)
+            scheduleSchoolConnections, schoolSchedules.first, schoolSchedules.second, visitSchedules)
     }
 
     @VisibleForTesting
@@ -60,6 +60,7 @@ class JdbcScheduleDetailRepository(
         schools: List<SchoolEntity>,
         scheduleSchoolConnections: List<ScheduleSchoolConnectionEntity>,
         schoolSchedules: List<SchoolSchedule>,
+        lastMonthVisitDateMap: Map<School.SchoolCode, Schedule.ScheduleDate?>,
         visitSchedules: VisitSchedules
     ): ScheduleDetail {
 
@@ -70,7 +71,8 @@ class JdbcScheduleDetailRepository(
             val school = it.toSchool()
             val calculationTarget = scheduleSchoolConnectionMap[it.schoolId]?.calculationTarget ?: false
             val schedules = schoolScheduleMap[school.schoolCode]
-            ScheduleDetail.SchoolWithSchedule(school, calculationTarget, schedules)
+            ScheduleDetail.SchoolWithSchedule(school, calculationTarget, schedules,
+                lastMonthVisitDateMap[school.schoolCode])
         }.toList()
         val schoolWithScheduleMap = schoolWithSchedules.map { it.school.schoolId to it }.toMap()
         val sortedSchoolIds = scheduleSchoolConnections.map { School.SchoolId(it.schoolId) }.toList()

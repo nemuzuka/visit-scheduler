@@ -15,7 +15,8 @@ class ScheduleDetailFixtures {
             val schoolWithSchedule = ScheduleDetail.SchoolWithSchedule(
                 SchoolFixtures.create(),
                 false,
-                listOf(SchoolScheduleFixtures.create()))
+                listOf(SchoolScheduleFixtures.create()),
+                Schedule.ScheduleDate(LocalDate.of(2019, 9, 18)))
             return ScheduleDetail(schedule, privateSchedules,
                 ScheduleDetail.SchoolWithSchedules(listOf(schoolWithSchedule)),
                 VisitSchedules(listOf(

@@ -24,6 +24,8 @@
             <li>○: この日を優先的にスケジュールに入れます</li>
             <li>×: この日は訪問スケジュールに入れません</li>
           </ul>
+          <br>
+          必要であれば先月の最終訪問日も設定してください。
         </div>
 
         <div>
@@ -72,6 +74,13 @@
           </div>
 
           <div class="field">
+            <label class="label">先月の最終訪問日</label>
+            <div class="control">
+              <datepicker v-model="lastMonthVisitDate" :format="DatePickerFormat" :language="ja" :input-class="DatePickerClass" :clear-button="true"></datepicker>
+            </div>
+          </div>
+
+          <div class="field">
             <p class="control has-text-right">
               <button class="button is-info" @click="saveTargetDayAndMemos">
               <span class="icon is-small">
@@ -96,17 +105,26 @@
   import Uuid from 'uuid/v4'
   import Utils from "../../../utils"
   import Moment from 'moment'
+  import Datepicker from 'vuejs-datepicker'
+  import {ja} from 'vuejs-datepicker/dist/locale'
 
   export default {
     name: 'school-schedule',
+    components :{
+      Datepicker
+    },
     data() {
       return {
+        DatePickerClass: 'input input-date',
+        ja: ja,
+        DatePickerFormat: 'yyyy-MM-dd',
         globalErrorMessage: "",
         targetDateLabel:"",
         schoolLabel:"",
         schoolCode:"",
         targetYearAndMonth : "",
         targetDayAndMemos: [],
+        lastMonthVisitDate: "",
         options:[
           {id: "ABSOLUTELY", name: "◎"},
           {id: "POSSIBLE", name: "○"},
@@ -126,14 +144,16 @@
 
       const response = await self.$http.get('/api/school-schedules/_by-school/' + self.schoolCode + '?target_year_and_month=' + self.targetYearAndMonth)
       self.targetDayAndMemos.splice(0,self.targetDayAndMemos.length)
-      const targetDayAndMemos = response.data.elements
+      const targetDayAndMemos = response.data.school_schedules
       targetDayAndMemos.forEach(targetDayAndMemo => self.addTargetDayAndMemo(targetDayAndMemo.target_day, targetDayAndMemo.memo, targetDayAndMemo.priority, false))
 
-      if(response.data.elements.length === 0) {
+      if(response.data.school_schedules.length === 0) {
         for(let i = 0; i < 3; i++) {
           self.addDefaultTargetDayAndMemo()
         }
       }
+
+      self.lastMonthVisitDate = response.data.last_month_visit_date
     },
     methods: {
       addTargetDayAndMemo(targetDay, memo, priority, useUnshift) {
@@ -204,11 +224,21 @@
         })
 
         const callback = async () => {
-            const parameter = {
+          let last_month_visit_date = null
+          if(self.lastMonthVisitDate === null || self.lastMonthVisitDate === '') {
+            last_month_visit_date = null
+          } else if(typeof self.lastMonthVisitDate === 'string') {
+            last_month_visit_date = self.lastMonthVisitDate
+          } else if(typeof self.lastMonthVisitDate === 'object') {
+            // date 扱い
+            last_month_visit_date = Moment(self.lastMonthVisitDate).format('YYYY-MM-DD')
+          }
+          const parameter = {
               target_year_and_month: self.targetYearAndMonth,
               school_code: self.schoolCode,
-              target_day_and_memos: targetDayAndMemos
-            }
+              target_day_and_memos: targetDayAndMemos,
+              last_month_visit_date: last_month_visit_date
+          }
 
           try {
             await self.$http.post('/api/school-schedules', parameter)
@@ -244,5 +274,4 @@
   input.input-day {
     width: 3em;
   }
-
 </style>

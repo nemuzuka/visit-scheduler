@@ -110,3 +110,7 @@ p.back a i {
 .label-target {
     width: 4em;
 }
+
+input.input-date {
+    width: 13em;
+}

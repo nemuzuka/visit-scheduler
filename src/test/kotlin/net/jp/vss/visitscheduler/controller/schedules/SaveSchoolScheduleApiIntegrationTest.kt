@@ -123,7 +123,7 @@ class SaveSchoolScheduleApiIntegrationTest {
 
         // 永続化していること
         val createdSchool = jdbcSchoolScheduleRepo.getSchoolSchedules(listOf(School.SchoolCode(request.schoolCode!!)),
-            Schedule.TargetYearAndMonth(request.targetYearAndMonth!!))
+            Schedule.TargetYearAndMonth(request.targetYearAndMonth!!)).first // TODO
         assertThat(createdSchool).hasSize(2)
         assertThat(createdSchool[0])
             .returns(Schedule.ScheduleDate(LocalDate.parse("2019-12-01")), SchoolSchedule::targetDate)

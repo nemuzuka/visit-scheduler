@@ -1,5 +1,7 @@
 package net.jp.vss.visitscheduler.usecase.schedules
 
+import java.time.LocalDate
+import net.jp.vss.visitscheduler.domain.schedules.Schedule
 import net.jp.vss.visitscheduler.domain.schedules.SchoolSchedule
 
 /**
@@ -12,6 +14,8 @@ class SaveSchoolScheduleUseCaseParameterFixtures {
             "SCHOOL_01A",
             listOf(
                 SaveSchoolScheduleUseCaseParameter.TargetDayAndMemo(3, "授業参観", SchoolSchedule.Priority.DONT_COME),
-                SaveSchoolScheduleUseCaseParameter.TargetDayAndMemo(21, "補修", SchoolSchedule.Priority.POSSIBLE)))
+                SaveSchoolScheduleUseCaseParameter.TargetDayAndMemo(21, "補修", SchoolSchedule.Priority.POSSIBLE)),
+            Schedule.ScheduleDate(LocalDate.of(2018, 12, 22))
+        )
     }
 }
