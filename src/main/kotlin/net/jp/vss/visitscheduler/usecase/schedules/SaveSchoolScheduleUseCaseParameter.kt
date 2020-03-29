@@ -12,12 +12,14 @@ import net.jp.vss.visitscheduler.domain.users.User
  * @property createUserCode 登録ユーザコード
  * @property schoolCode 登録対象学校コード
  * @property targetDayAndMemos 個人スケジュールの対象日とメモの組み合わせ要素リスト
+ * @property lastMonthVisitDate 先月の最終訪問日
  */
 data class SaveSchoolScheduleUseCaseParameter(
     val targetDateString: String,
     val createUserCode: String,
     val schoolCode: String,
-    val targetDayAndMemos: List<TargetDayAndMemo>
+    val targetDayAndMemos: List<TargetDayAndMemo>,
+    val lastMonthVisitDate: Schedule.ScheduleDate?
 ) {
 
     /**

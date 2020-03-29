@@ -132,7 +132,7 @@ class SaveSchoolScheduleApiControllerTest {
 
     @Test
     @WithMockUser
-    fun testSaveSchoolSchedule_BadRequest_400() {
+    fun testSaveSchoolSchedule_ThrowISE_400() {
         // setup
         val authorizedClientRegistrationId = "google"
         val principalName = "abcd-000A-0001"
@@ -145,6 +145,36 @@ class SaveSchoolScheduleApiControllerTest {
         whenever(getUserUseCase.getUser(anyString(), anyString())).thenReturn(user)
 
         val exception = IllegalStateException("dummy")
+        whenever(saveSchoolScheduleUseCase.saveSchoolSchedule(any())).thenThrow(exception)
+
+        val parameter = SaveSchoolScheduleApiParameterFixtures.create()
+        val mapper = ObjectMapper()
+        val content = mapper.writeValueAsString(parameter)
+
+        // execution
+        mockMvc.perform(post("/api/school-schedules")
+            .contentType(MediaType.APPLICATION_JSON)
+            .with(SecurityMockMvcRequestPostProcessors.csrf())
+            .content(content))
+            // verify
+            .andExpect(status().isBadRequest)
+    }
+
+    @Test
+    @WithMockUser
+    fun testSaveSchoolSchedule_ThrowIAE_400() {
+        // setup
+        val authorizedClientRegistrationId = "google"
+        val principalName = "abcd-000A-0001"
+        whenever(oAuth2AuthenticationToken.authorizedClientRegistrationId).thenReturn(authorizedClientRegistrationId)
+        whenever(principal.name).thenReturn(principalName)
+        whenever(oAuth2AuthenticationToken.principal).thenReturn(principal)
+        whenever(oAuth2AuthenticationToken.isAuthenticated).thenReturn(true)
+
+        val user = UserUseCaseResultFixtures.create()
+        whenever(getUserUseCase.getUser(anyString(), anyString())).thenReturn(user)
+
+        val exception = IllegalArgumentException("dummy")
         whenever(saveSchoolScheduleUseCase.saveSchoolSchedule(any())).thenThrow(exception)
 
         val parameter = SaveSchoolScheduleApiParameterFixtures.create()

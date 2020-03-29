@@ -48,10 +48,12 @@ data class ScheduleDetail(
      * @property school 学校
      * @property calculationTarget 計算対象の場合、true
      * @property schedules スケジュールリスト(未設定の場合、null)
+     * @property lastMonthVisitDate 先月の最終訪問日
      */
     data class SchoolWithSchedule(
         val school: School,
         val calculationTarget: Boolean,
-        val schedules: List<SchoolSchedule>?
+        val schedules: List<SchoolSchedule>?,
+        val lastMonthVisitDate: Schedule.ScheduleDate?
     )
 }

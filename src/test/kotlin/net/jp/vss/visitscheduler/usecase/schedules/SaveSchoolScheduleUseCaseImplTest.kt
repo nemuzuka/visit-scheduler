@@ -49,7 +49,7 @@ class SaveSchoolScheduleUseCaseImplTest {
     @Test
     fun testCreateSchoolSchedule() {
         // setup
-        doNothing().whenever(schoolScheduleRepo).save(any(), any(), any(), any())
+        doNothing().whenever(schoolScheduleRepo).save(any(), any(), any(), any(), any())
 
         val input = SaveSchoolScheduleUseCaseParameterFixtures.create()
 
@@ -57,11 +57,12 @@ class SaveSchoolScheduleUseCaseImplTest {
         sut.saveSchoolSchedule(input)
 
         // verify
-        argumentCaptor< User.UserCode, School.SchoolCode, Schedule.TargetYearAndMonth, List<SchoolSchedule>>().let {
-            (userCodeCaptor, schoolCodeCaptor, targetYearAndMonthCaptor, schoolSchedulesCaptor) ->
+        argumentCaptor< User.UserCode, School.SchoolCode, Schedule.TargetYearAndMonth,
+            List<SchoolSchedule>, Schedule.ScheduleDate>().let {
+            (userCodeCaptor, schoolCodeCaptor, targetYearAndMonthCaptor, schoolSchedulesCaptor, scheduleDateCaptor) ->
 
             verify(schoolScheduleRepo).save(userCodeCaptor.capture(), schoolCodeCaptor.capture(),
-                targetYearAndMonthCaptor.capture(), schoolSchedulesCaptor.capture())
+                targetYearAndMonthCaptor.capture(), schoolSchedulesCaptor.capture(), scheduleDateCaptor.capture())
 
             val capturedUserCode = userCodeCaptor.firstValue
             assertThat(capturedUserCode).isEqualTo(User.UserCode(input.createUserCode))
@@ -74,6 +75,9 @@ class SaveSchoolScheduleUseCaseImplTest {
 
             val capturedSchoolSchedules = schoolSchedulesCaptor.firstValue
             assertThat(capturedSchoolSchedules).isEqualTo(input.toSchoolSchedules())
+
+            val capturedLastMonthVisitDate = scheduleDateCaptor.firstValue
+            assertThat(capturedLastMonthVisitDate).isEqualTo(input.lastMonthVisitDate)
         }
     }
 }

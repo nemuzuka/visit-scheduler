@@ -87,7 +87,7 @@
         const schoolRequestedSchedules = self.schoolWithSchedules.filter(schoolWithSchedule=>schoolWithSchedule.calculation_target)
           .map(schoolWithSchedule => {
             const school = schoolWithSchedule.school
-            const schedules = schoolWithSchedule.schedules
+            const schedules = schoolWithSchedule.school_schedules
             let dayWithPriproties = []
             if(schedules !== null) {
               dayWithPriproties = schedules.map(schedule=>{
@@ -97,9 +97,14 @@
                 }
               })
             }
+
+            let lastMonthVisitDay = null
+            if(schoolWithSchedule.last_month_visit_date !== null) {
+              lastMonthVisitDay = parseInt(schoolWithSchedule.last_month_visit_date.slice(-2))
+            }
             return {
               school_code: school.school_code,
-              last_month_visit_day: null, // TODO 後で設定する
+              last_month_visit_day: lastMonthVisitDay,
               day_with_priproties: dayWithPriproties
             }
           })

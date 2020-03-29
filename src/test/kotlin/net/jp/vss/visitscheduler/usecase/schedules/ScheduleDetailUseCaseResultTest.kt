@@ -59,7 +59,8 @@ class ScheduleDetailUseCaseResultTest {
             |   "version": ${sut.scheduleUseCaseResult.resourceAttributesResult.version}
         """.trimMargin()
 
-        val schoolScheduleUseCaseResult = sut.schoolWithSchedules.schoolWithSchedules[0].schedules!![0]
+        val schoolSchedule = sut.schoolWithSchedules.schoolWithSchedules[0].schoolSchedule.schoolSchedules[0]
+        val lastMonthVisitDate = sut.schoolWithSchedules.schoolWithSchedules[0].schoolSchedule.lastMonthVisitDate
         val expected = """
             |{
             |   $scheduleJsonString,
@@ -73,13 +74,14 @@ class ScheduleDetailUseCaseResultTest {
             |       {
             |           "school": $schoolJsonString,
             |           "calculation_target": ${sut.schoolWithSchedules.schoolWithSchedules[0].calculationTarget},
-            |           "schedules": [
+            |           "school_schedules": [
             |               {
-            |                   "target_day": ${schoolScheduleUseCaseResult.targetDay},
-            |                   "memo": ${schoolScheduleUseCaseResult.memo},
-            |                   "priority": ${schoolScheduleUseCaseResult.priority}
+            |                   "target_day": ${schoolSchedule.targetDay},
+            |                   "memo": ${schoolSchedule.memo},
+            |                   "priority": ${schoolSchedule.priority}
             |               }
-            |           ]
+            |           ],
+            |           "last_month_visit_date": "$lastMonthVisitDate"
             |       }
             |   ],
             |   "visit_schedules": [

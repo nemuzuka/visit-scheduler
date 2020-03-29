@@ -61,6 +61,10 @@ class SaveSchoolScheduleApiController(
             // user_code に紐づかない school_code を指定した場合
             log.info("BadRequest Parameter({}) {}", parameter, e.message)
             throw HttpBadRequestException(e.message!!, e)
+        } catch (e: IllegalArgumentException) {
+            // 不正な入力を行った場合
+            log.info("BadRequest Parameter({}) {}", parameter, e.message)
+            throw HttpBadRequestException(e.message!!, e)
         }
     }
 }
