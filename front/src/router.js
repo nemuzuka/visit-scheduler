@@ -4,7 +4,6 @@ import Top from './components/Top.vue';
 import Login from './components/Login.vue';
 import UserSettings from './components/UserSettings.vue';
 import Error from './components/Error.vue';
-import TaskEdit  from './components/task/Edit.vue';
 import SchoolTop  from './components/school/Top.vue';
 import SchoolEdit  from './components/school/Edit.vue';
 import ScheduleCreate  from './components/schedule/Create.vue';
@@ -19,7 +18,6 @@ const routes = [
   { path: '/login', component: Login },
   { path: '/user-settings', component: UserSettings },
   { path: '/error', component: Error },
-  { path: '/edit-task/:task_code', component: TaskEdit },
   { path: '/school', component: SchoolTop },
   { path: '/edit-school/:school_code', component: SchoolEdit },
   { path: '/edit-schedule/_new', component: ScheduleCreate },
