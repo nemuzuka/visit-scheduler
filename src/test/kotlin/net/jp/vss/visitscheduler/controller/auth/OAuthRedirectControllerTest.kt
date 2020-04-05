@@ -84,7 +84,7 @@ class OAuthRedirectControllerTest {
             .andDo(print())
             // verify
             .andExpect(status().isFound)
-            .andExpect(redirectedUrl("/user-settings"))
+            .andExpect(redirectedUrl("/#/user-settings"))
 
         verify(getUserUseCase).getUser(authorizedClientRegistrationId, principalName)
     }
