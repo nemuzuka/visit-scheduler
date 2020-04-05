@@ -86,6 +86,6 @@ class OAuthRedirectIntegrationTest {
             .andDo(print())
             // verify
             .andExpect(status().isFound)
-            .andExpect(redirectedUrl("/user-settings"))
+            .andExpect(redirectedUrl("/#/user-settings"))
     }
 }
