@@ -23,7 +23,7 @@
 
 <style scoped>
   .main-contents {
-    background: darkseagreen;
+    background: darkolivegreen;
     padding: 3em;
   }
 </style>
