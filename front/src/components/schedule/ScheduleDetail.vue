@@ -6,10 +6,32 @@
     </div>
 
     <div class="buttons are-medium">
-      <button class="button" @click="movePrivateSchedule">個人スケジュール設定</button>
-      <button class="button" @click="openSchoolScheduleDialog">学校スケジュール設定</button>
-      <button class="button" @click="openSortSchoolDialog">優先度設定</button>
-      <button class="button" @click="openScheduleSettingDialog">スケジュール計算</button>
+      <button class="button" @click="movePrivateSchedule">
+        <span class="icon is-small">
+          <font-awesome-icon icon="user-lock" />
+        </span>
+        <span>個人スケジュール設定</span>
+      </button>
+      <button class="button" @click="openSchoolScheduleDialog">
+        <span class="icon is-small">
+          <font-awesome-icon icon="school" />
+        </span>
+        <span>学校スケジュール設定</span>
+      </button>
+      <button class="button is-primary is-light" @click="openScheduleSettingDialog">
+        <span class="icon is-small">
+          <font-awesome-icon icon="chalkboard-teacher" />
+        </span>
+        <span>スケジュール計算</span>
+      </button>
+
+      <button class="button" @click="openSortSchoolDialog">
+        <span class="icon is-small">
+          <font-awesome-icon icon="arrows-alt-v" />
+        </span>
+        <span>優先度設定</span>
+      </button>
+
     </div>
 
     <div class="box">

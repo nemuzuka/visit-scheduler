@@ -28,50 +28,70 @@
           必要であれば先月の最終訪問日も設定してください。
         </div>
 
+
+        <div class="tabs is-small">
+          <ul>
+            <li :class="{'is-active': isNormal}" @click="moveNormal"><a class="tab-element">通常</a></li>
+            <li :class="{'is-active': isTextArea}" @click="moveBulkInput"><a class="tab-element">一括設定</a></li>
+          </ul>
+        </div>
+
         <div>
-          <table class="table is-bordered">
-            <thead>
-            <tr>
-              <th class="trash"></th>
-              <th>対象日(1-月末まで)</th>
-              <th>優先度</th>
-              <th>メモ</th>
-            </tr>
-            </thead>
-            <tbody>
-              <tr v-for="targetDayAndMemo in targetDayAndMemos" :key="targetDayAndMemo.key">
-                <td class="trash">
-                  <button class="button is-danger is-outlined" @click="deleteTargetDayAndMemo(targetDayAndMemo.key)">
-                    <span class="icon is-small">
-                      <font-awesome-icon icon="trash" />
-                    </span>
-                  </button>
-                </td>
-                <td><input class="input input-day" type="text" v-model="targetDayAndMemo.targetDay"></td>
-                <td>
-                  <div class="select">
-                    <select v-model="targetDayAndMemo.priority">
-                      <option v-for="option in options" :value="option.id" :key="option.id">
-                        {{ option.name }}
-                      </option>
-                    </select>
-                  </div>
-                </td>
-                <td><input class="input" type="text" v-model="targetDayAndMemo.memo"></td>
+          <div v-if="isNormal">
+            <table class="table is-bordered">
+              <thead>
+              <tr>
+                <th class="trash"></th>
+                <th>対象日(1-月末まで)</th>
+                <th>優先度</th>
+                <th>メモ</th>
               </tr>
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                <tr v-for="targetDayAndMemo in targetDayAndMemos" :key="targetDayAndMemo.key">
+                  <td class="trash">
+                    <button class="button is-danger is-outlined" @click="deleteTargetDayAndMemo(targetDayAndMemo.key)">
+                      <span class="icon is-small">
+                        <font-awesome-icon icon="trash" />
+                      </span>
+                    </button>
+                  </td>
+                  <td><input class="input input-day" type="text" v-model="targetDayAndMemo.targetDay"></td>
+                  <td>
+                    <div class="select">
+                      <select v-model="targetDayAndMemo.priority">
+                        <option v-for="option in options" :value="option.id" :key="option.id">
+                          {{ option.name }}
+                        </option>
+                      </select>
+                    </div>
+                  </td>
+                  <td><input class="input" type="text" v-model="targetDayAndMemo.memo"></td>
+                </tr>
+              </tbody>
+            </table>
 
-          <div class="buttons">
+            <div class="buttons">
 
-            <button class="button is-primary is-outlined" @click="addDefaultTargetDayAndMemo">
-              <span class="icon is-small">
-                <font-awesome-icon icon="plus" />
-              </span>
-              <span>日付を追加</span>
-            </button>
+              <button class="button is-primary is-outlined" @click="addDefaultTargetDayAndMemo">
+                <span class="icon is-small">
+                  <font-awesome-icon icon="plus" />
+                </span>
+                <span>日付を追加</span>
+              </button>
 
+            </div>
           </div>
+
+          <div v-if="isTextArea">
+            <div class="notification primary is-light">
+              Excel のデータを貼り付けます。<br>
+              「優先度(tab 記号)メモ」で入力してください。<br>
+              1行目が1日、2行目が2日のスケジュールになります。<br>
+            </div>
+            <textarea class="textarea" v-model="scheduleForTextareaValue" @change="bulkSetting"></textarea>
+          </div>
+
 
           <div class="field">
             <label class="label">先月の最終訪問日</label>
@@ -118,6 +138,8 @@
         DatePickerClass: 'input input-date',
         ja: ja,
         DatePickerFormat: 'yyyy-MM-dd',
+        editMode: 'NORMAL',
+        scheduleForTextareaValue: '',
         globalErrorMessage: "",
         targetDateLabel:"",
         schoolLabel:"",
@@ -134,6 +156,8 @@
     },
     async created () {
       const self = this
+      self.editMode = 'NORMAL'
+      self.scheduleForTextareaValue = ''
       self.targetYearAndMonth = self.$route.params.target_year_and_month
       self.schoolCode = self.$route.params.school_code
 
@@ -265,6 +289,82 @@
       moveScheduleDetail() {
         const self = this
         self.$router.push('/detail-schedule/' + localStorage.sceduleCode)
+      },
+      moveNormal() {
+        const self = this
+        if(self.editMode === 'NORMAL') {
+          return
+        }
+        self.editMode = 'NORMAL'
+      },
+      moveBulkInput() {
+        const self = this
+        if(self.editMode === 'TEXTAREA') {
+          return
+        }
+
+        const dayAndMemoMap = new Map()
+        const priorityMap = new Map([['ABSOLUTELY', '◎'], ['POSSIBLE', '○'], ['DONT_COME', '×']])
+        this.targetDayAndMemos.filter(targetDayAndMemo => {
+          return targetDayAndMemo.targetDay !== ''
+        }).forEach(targetDayAndMemo => {
+          dayAndMemoMap.set(targetDayAndMemo.targetDay,
+            priorityMap.get(targetDayAndMemo.priority)+ '\t' +targetDayAndMemo.memo)
+        })
+
+        let textareaValue = ''
+        if(dayAndMemoMap.size !== 0) {
+          for(let day = 1; day <= 31; day++) {
+            const priorityAndMemo = dayAndMemoMap.get("" + day)
+            if(priorityAndMemo !== undefined) {
+              textareaValue += priorityAndMemo + '\n'
+            } else {
+              textareaValue += '\n'
+            }
+          }
+        }
+        self.scheduleForTextareaValue = textareaValue
+        self.editMode = 'TEXTAREA'
+      },
+      bulkSetting() {
+        const self = this
+        const results = self.scheduleForTextareaValue.split('\n')
+        const priorityMap = new Map([['◎','ABSOLUTELY'], ['○','POSSIBLE'], ['×', 'DONT_COME']])
+
+        const targetDayAndMemos = results.map((result, index) =>{
+          if(result === '') {
+            return {
+              targetDay: undefined,
+              priority: undefined,
+              memo:undefined
+            }
+          }
+
+          const targetDay = ""+(index+1)
+          const datas = result.split('\t')
+          const priority = priorityMap.get(datas[0]);
+          const memo = datas.length >= 2 ? datas[1] : ''
+          return {
+            targetDay: targetDay,
+            priority: priority,
+            memo:memo
+          }
+        })
+
+        self.targetDayAndMemos.splice(0, self.targetDayAndMemos.length)
+        targetDayAndMemos.forEach(targetDayAndMemo =>{
+          if(targetDayAndMemo.priority !== undefined) {
+            self.addTargetDayAndMemo(targetDayAndMemo.targetDay, targetDayAndMemo.memo, targetDayAndMemo.priority, false)
+          }
+        })
+      }
+    },
+    computed: {
+      isNormal: function () {
+        return this.editMode === 'NORMAL'
+      },
+      isTextArea: function() {
+        return this.editMode === 'TEXTAREA'
       }
     }
   }
@@ -273,5 +373,9 @@
 <style scoped>
   input.input-day {
     width: 3em;
+  }
+
+  a.tab-element {
+    text-decoration: none !important;
   }
 </style>
